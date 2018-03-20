@@ -257,15 +257,15 @@ expandedCustomInterfaceOverrides:(NSMutableDictionary *)expandedCustomInterfaceO
 }
 
 - (void)tearingDownViewControllers:(NSNotification *)notification {
-    DLog();
+    DLog(@"");
     self.didTearDownViewControllers = YES;
 }
 
 - (void)engageLibraryTearDown
 {
-    DLog();
+    DLog(@"");
     if (self.didTearDownViewControllers) {
-        DLog();
+        DLog(@"");
         [JREngage updateTokenUrl:nil];
         self.delegate = nil;
         self.nativeSignInViewController = nil;
@@ -278,7 +278,7 @@ expandedCustomInterfaceOverrides:(NSMutableDictionary *)expandedCustomInterfaceO
 - (void)authenticationCallToTokenUrl:(NSString *)tokenUrl didFailWithError:(NSError *)error
                          forProvider:(NSString *)provider
 {
-    DLog();
+    DLog(@"");
     if ([delegate respondsToSelector:@selector(captureSignInDidFailWithError:)])
         [delegate captureSignInDidFailWithError:error];
 
@@ -287,7 +287,7 @@ expandedCustomInterfaceOverrides:(NSMutableDictionary *)expandedCustomInterfaceO
 
 - (void)authenticationDidFailWithError:(NSError *)error forProvider:(NSString *)provider
 {
-    DLog();
+    DLog(@"");
     if ([delegate respondsToSelector:@selector(engageAuthenticationDidFailWithError:forProvider:)])
         [delegate engageAuthenticationDidFailWithError:error forProvider:provider];
 
@@ -296,7 +296,7 @@ expandedCustomInterfaceOverrides:(NSMutableDictionary *)expandedCustomInterfaceO
 
 - (void)authenticationDidNotComplete
 {
-    DLog();
+    DLog(@"");
     if ([delegate respondsToSelector:@selector(engageAuthenticationDidCancel)])
         [delegate engageAuthenticationDidCancel];
 
