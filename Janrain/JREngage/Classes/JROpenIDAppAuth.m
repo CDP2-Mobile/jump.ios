@@ -40,11 +40,13 @@
     return NO;
 }
 
-+ (JROpenIDAppAuthProvider *)openIDAppAuthProviderNamed:(NSString *)provider {
++ (JROpenIDAppAuthProvider *)openIDAppAuthProviderNamed:(NSString *)provider andDelegate:(id<JROpenIDAppAuthGoogleDelegate>)delegate {
     JROpenIDAppAuthProvider *openIDAppAuthProvider = nil;
     
     if ([provider isEqualToString:@"googleplus"]) {
-        openIDAppAuthProvider = [[JROpenIDAppAuthGoogle alloc] init];
+        JROpenIDAppAuthGoogle *openIDAppAuthGoogle = [[JROpenIDAppAuthGoogle alloc] init];
+        openIDAppAuthGoogle.jrOpenIDAppAuthGoogleDelegate = delegate;
+        openIDAppAuthProvider = openIDAppAuthGoogle;
     } else {
         [NSException raiseJRDebugException:@"unexpected OpenID AppAuth provider" format:provider];
     }

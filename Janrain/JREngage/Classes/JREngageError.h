@@ -73,7 +73,8 @@ typedef enum
     JRAuthenticationCanceledError,       /**< Authentication canceled */
     JRAuthenticationNativeAuthError,     /**< Native authentication error */
     JRAuthenticationShouldTryWebViewError, /**< Native auth failed, but we should attempt UIWebView authentication */
-    JRAuthenticationNoAccessToTwitterAccountsError /**< Native auth failed, no access to twitter accounts*/
+    JRAuthenticationNoAccessToTwitterAccountsError, /**< Native auth failed, no access to twitter accounts*/
+    JRAuthenticationNoAccessToWeChatAccountsError /**< Native auth failed, no access to wechat accounts*/
     // TODO: Add the token url error where appropriate
 } JREngageAuthenticationError;
 

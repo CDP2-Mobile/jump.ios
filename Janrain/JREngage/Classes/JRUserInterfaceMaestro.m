@@ -650,7 +650,7 @@ static JRUserInterfaceMaestro *singleton = nil;
 - (NSDictionary*)loadJanrainInterfaceDefaults
 {
     NSDictionary *infoPlist = [NSDictionary dictionaryWithContentsOfFile:
-                               [[[NSBundle mainBundle] resourcePath]
+                               [[[NSBundle bundleForClass:[self class]] resourcePath]
                                 stringByAppendingPathComponent:@"/JREngage-Info.plist"]];
 
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:

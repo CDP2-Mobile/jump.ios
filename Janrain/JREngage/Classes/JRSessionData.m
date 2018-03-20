@@ -726,6 +726,7 @@ static JRSessionData *singleton = nil;
                            @"%@/openid/mobile_config_and_baseurl?device=%@&appId=%@&%@",
                            engageServerUrl, self.device, self.appId, self.appNameAndVersion];
     ALog (@"Getting configuration for RP: %@", urlString);
+    [JRConnectionManager stopConnectionsForDelegate:self];
     
     NSMutableURLRequest *configRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     
@@ -1634,6 +1635,10 @@ static JRSessionData *singleton = nil;
         {
             self.error = [JREngageError errorWithMessage:@"There was a problem communicating with the Janrain server while configuring authentication."
                                                  andCode:JRConfigurationInformationError];
+            [[NSNotificationCenter defaultCenter]
+             postNotificationName:JRFailedToUpdateEngageConfigurationNotification
+             object:self
+             userInfo:@{@"error" : self.error}];
         }
         else if ([(NSString *)tag isEqualToString:@"emailSuccess"])
         {
