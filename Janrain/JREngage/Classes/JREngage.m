@@ -37,10 +37,12 @@
 #import "JRUserInterfaceMaestro.h"
 #import "JREngageError.h"
 #import "JROpenIDAppAuth.h"
-#import "JROpenIDAppAuthProvider.h"
+#import "JRNativeAuth.h"
+#import "JRNativeAuthConfig.h"
 
 
-@interface JREngage () <JRSessionDelegate>
+@interface JREngage () <JRSessionDelegate, JRNativeAuthConfig, JROpenIDAppAuthGoogleDelegate>
+
 /** \internal Class that handles customizations to the library's UI */
 @property (nonatomic) JRUserInterfaceMaestro *interfaceMaestro;
 
@@ -50,9 +52,8 @@
 /** \internal Array of JREngageDelegate objects */
 @property (nonatomic) NSMutableArray         *delegates;
 
-@property (nonatomic) NSString *googlePlusClientId;
-
-@property (nonatomic) JROpenIDAppAuthProvider *openIDAppAuthProvider;
+@property (nonatomic) NSString *weChatAppId;
+@property (nonatomic) NSString *weChatSecretKey;
 
 @end
 
@@ -61,6 +62,9 @@ NSString *const JRFailedToUpdateEngageConfigurationNotification = @"JRFailedToUp
 
 @implementation JREngage
 
+@synthesize googlePlusClientId;
+@synthesize googlePlusRedirectUri;
+@synthesize openIDAppAuthAuthorizationFlow;
 @synthesize interfaceMaestro;
 @synthesize sessionData;
 @synthesize delegates;
@@ -72,13 +76,19 @@ static JREngage* singleton = nil;
 {
     if (singleton == nil) {
         singleton = [((JREngage *)[super allocWithZone:NULL]) init];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationDidBecomeActive:)
+                                                     name:UIApplicationDidBecomeActiveNotification object:nil];
     }
 
     return singleton;
 }
 
 
-
+-(void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
+}
 
 + (id)allocWithZone:(NSZone *)zone
 {
@@ -92,7 +102,8 @@ static JREngage* singleton = nil;
     if (!delegates)
         self.delegates = [NSMutableArray arrayWithObjects:delegate, nil];
     else
-        [delegates addObject:delegate];
+        if (![delegates containsObject:delegate])
+            [delegates addObject:delegate];
     
     if (!sessionData)
         self.sessionData = [JRSessionData jrSessionDataWithAppId:appId appUrl:appUrl tokenUrl:tokenUrl andDelegate:self];
@@ -143,6 +154,18 @@ static JREngage* singleton = nil;
 
 + (void)setGooglePlusClientId:(NSString *)clientId {
     [[JREngage singletonInstance] setGooglePlusClientId:clientId];
+}
+
++ (void)setGooglePlusRedirectUri:(NSString *)redirectUri {
+    [[JREngage singletonInstance] setGooglePlusRedirectUri:redirectUri];
+}
+
++ (void)setWeChatAppId:(NSString *)appID {
+    [[JREngage singletonInstance] setWeChatAppId:appID];
+}
+
++ (void)setWeChatAppSecretKey:(NSString *)secretKey {
+    [[JREngage singletonInstance] setWeChatSecretKey:secretKey];
 }
 
 - (id)copyWithZone:(__unused NSZone *)zone __unused
@@ -239,20 +262,35 @@ static JREngage* singleton = nil;
         return;
     }
 
-    if ([JROpenIDAppAuth canHandleProvider:provider])
-    {
+    if ([JROpenIDAppAuth canHandleProvider:provider]) {
         [self startOpenIDAppAuthOnProvider:provider customInterface:customInterfaceOverrides];
-    }
-    else
-    {
-    
+    } else if ([JRNativeAuth canHandleProvider:provider]) {
+        [self startNativeAuthOnProvider:provider customInterface:customInterfaceOverrides];
+    } else {
         [interfaceMaestro startWebAuthWithCustomInterface:customInterfaceOverrides provider:provider];
     }
 }
 
 - (void)startOpenIDAppAuthOnProvider:(NSString *)provider customInterface:(NSDictionary *)customInterfaceOverrides {
-    self.openIDAppAuthProvider = [JROpenIDAppAuth openIDAppAuthProviderNamed:provider];
+    self.openIDAppAuthProvider = [JROpenIDAppAuth openIDAppAuthProviderNamed:provider andDelegate:self];
     [self.openIDAppAuthProvider startAuthenticationWithCompletion:^(NSError *error) {
+        
+        if (!error) return;
+        
+        if ([error.domain isEqualToString:JREngageErrorDomain] && error.code == JRAuthenticationCanceledError) {
+            [self authenticationDidCancel];
+        } else if ([error.domain isEqualToString:JREngageErrorDomain]
+                   && error.code == JRAuthenticationShouldTryWebViewError) {
+            [interfaceMaestro startWebAuthWithCustomInterface:customInterfaceOverrides provider:provider];
+        } else {
+            [self authenticationDidFailWithError:error forProvider:provider];
+        }
+    }];
+}
+
+- (void)startNativeAuthOnProvider:(NSString *)provider customInterface:(NSDictionary *)customInterfaceOverrides {
+    self.nativeProvider = [JRNativeAuth nativeProviderNamed:provider withConfiguration:self];
+    [self.nativeProvider startAuthenticationWithCompletion:^(NSError *error) {
         
         if (!error) return;
         
@@ -657,9 +695,6 @@ static JREngage* singleton = nil;
     [interfaceMaestro setCustomInterfaceDefaults:customInterfaceDefaults];
 }
 
-- (void)dealloc
-{
-}
 
 + (void)setCustomInterfaceDefaults:(NSDictionary *)customInterfaceDefaults
 {
@@ -682,7 +717,7 @@ static JREngage* singleton = nil;
 
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-    if (sessionData.openIDAppAuthAuthenticationFlowIsInFlight) {
+    if (sessionData.openIDAppAuthAuthenticationFlowIsInFlight || sessionData.nativeAuthenticationFlowIsInFlight) {
         [interfaceMaestro authenticationCanceled];
     }
 }
@@ -702,5 +737,37 @@ static JREngage* singleton = nil;
     [interfaceMaestro authenticationCompleted];
 }
 
+#pragma mark - Below methods were added for native authentication -
 
++ (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+            options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options{
+    
+    JROpenIDAppAuthProvider *openIDAppAuthGoogle = [(JREngage *)[JREngage singletonInstance] openIDAppAuthProvider];
+    if (openIDAppAuthGoogle.inProgress && [ [JREngage singletonInstance].openIDAppAuthAuthorizationFlow resumeAuthorizationFlowWithURL:url ]) {
+        [JREngage singletonInstance].openIDAppAuthAuthorizationFlow = nil;
+        return YES;
+    }
+    return [JRNativeAuth application:application openURL:url options:options provider:[JREngage singletonInstance].nativeProvider];
+}
+
+#pragma mark - JRNativeAuthConfig Delegate -
+
+- (NSString *)weChatAppId {
+    return _weChatAppId;
+}
+
+- (NSString *)weChatAppSecret {
+    return _weChatSecretKey;
+}
+
+#pragma mark - JROpenIDAppAuthGoogleDelegate Delegate -
+
+- (NSString *)googlePlusClientId {
+    return googlePlusClientId;
+}
+
+- (NSString *)googlePlusRedirectUri {
+    return googlePlusRedirectUri;
+}
 @end
