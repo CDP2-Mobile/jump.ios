@@ -208,7 +208,6 @@ static JRCaptureData *singleton = nil;
                           forAccountLinking:(BOOL)linkAccount
                                    delegate:(id)delegate {
     JRCaptureData *captureData = [JRCaptureData sharedCaptureData];
-    
     NSString *redirectUri = [singleton redirectUri];
     NSString *thinReg = [JRCaptureData sharedCaptureData].captureEnableThinRegistration ? @"true" : @"false";
     NSMutableDictionary *urlArgs = [NSMutableDictionary dictionaryWithDictionary:

@@ -64,6 +64,7 @@ static NSString *const kAppAuthExampleAuthStateKey = @"authState";
     
     DLog(@"Fetching configuration for issuer: %@", issuer);
     self.inProgress = YES;
+
     // discovers endpoints
     [OIDAuthorizationService discoverServiceConfigurationForIssuer:issuer
         completion:^(OIDServiceConfiguration *_Nullable configuration, NSError *_Nullable error) {

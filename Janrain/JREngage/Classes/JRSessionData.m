@@ -38,6 +38,7 @@
 #import "JRUserInterfaceMaestro.h"
 #import "JREngage+CustomInterface.h"
 #import "JRJsonUtils.h"
+#import "JRCaptureData.h"
 
 static NSString *serverUrl = @"https://rpxnow.com";
 
@@ -726,9 +727,10 @@ static JRSessionData *singleton = nil;
                            @"%@/openid/mobile_config_and_baseurl?device=%@&appId=%@&%@",
                            engageServerUrl, self.device, self.appId, self.appNameAndVersion];
     ALog (@"Getting configuration for RP: %@", urlString);
-    [JRConnectionManager stopConnectionsForDelegate:self];
     
     NSMutableURLRequest *configRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+    
+    [JRConnectionManager stopConnectionsForDelegate:self];
     
     if (![JRConnectionManager createConnectionFromRequest:configRequest forDelegate:self returnFullResponse:YES
                                                   withTag:GET_CONFIGURATION_TAG])

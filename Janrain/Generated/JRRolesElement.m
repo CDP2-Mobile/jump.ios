@@ -106,9 +106,33 @@
     return self;
 }
 
+- (id)initWithRole:(NSString *)newRole
+{
+    if (!newRole)
+    {
+        return nil;
+     }
+
+    if ((self = [super init]))
+    {
+        self.captureObjectPath      = @"";
+        self.canBeUpdatedOnCapture  = NO;
+
+        _role = [newRole copy];
+
+        [self.dirtyPropertySet setSet:[self updatablePropertySet]];
+    }
+    return self;
+}
+
 + (id)rolesElement
 {
     return [[JRRolesElement alloc] init];
+}
+
++ (id)rolesElementWithRole:(NSString *)role
+{
+    return [[JRRolesElement alloc] initWithRole:role];
 }
 
 - (NSDictionary*)newDictionaryForEncoder:(BOOL)forEncoder

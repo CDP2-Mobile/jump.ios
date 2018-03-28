@@ -51,6 +51,11 @@
  *
  * @return
  *   A JRRolesElement object
+ *
+ * @note 
+ * Method creates a object without the required properties: \e role.
+ * These properties are required when updating the object on Capture. That is, you must set them before calling
+ * updateOnCaptureForDelegate:context:().
  **/
 - (id)init;
 
@@ -59,8 +64,37 @@
  *
  * @return
  *   A JRRolesElement object
+ *
+ * @note 
+ * Method creates a object without the required properties: \e role.
+ * These properties are required when updating the object on Capture. That is, you must set them before calling
+ * updateOnCaptureForDelegate:context:().
  **/
 + (id)rolesElement;
+
+/**
+ * Returns a JRRolesElement object initialized with the given required properties: \c newRole
+ *
+ * @param newRole
+ *   The object's \e role property
+ *
+ * @return
+ *   A JRRolesElement object initialized with the given required properties: \e newRole.
+ *   If the required arguments are \e nil or \e [NSNull null], returns \e nil
+ **/
+- (id)initWithRole:(NSString *)newRole;
+
+/**
+ * Returns a JRRolesElement object initialized with the given required properties: \c role
+ *
+ * @param role
+ *   The object's \e role property
+ *
+ * @return
+ *   A JRRolesElement object initialized with the given required properties: \e role.
+ *   If the required arguments are \e nil or \e [NSNull null], returns \e nil
+ **/
++ (id)rolesElementWithRole:(NSString *)role;
 
 /*@}*/
 

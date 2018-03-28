@@ -36,6 +36,7 @@
 #import "JRCampaignsElement.h"
 #import "JRChildrenElement.h"
 #import "JRClientsElement.h"
+#import "JRCloudsearch.h"
 #import "JRConsentsElement.h"
 #import "JRConsumerInterestsElement.h"
 #import "JRDeviceIdentificationElement.h"
@@ -43,6 +44,7 @@
 #import "JRIdentifierInformation.h"
 #import "JRJanrain.h"
 #import "JRLastUsedDevice.h"
+#import "JRMarketingOptIn.h"
 #import "JRMigration.h"
 #import "JROptIn.h"
 #import "JRPhotosElement.h"
@@ -71,11 +73,13 @@
 @property (nonatomic, copy)     NSString *catalogLocaleItem; /**< The object's \e catalogLocaleItem property */ 
 @property (nonatomic, copy)     NSArray *children; /**< The object's \e children property @note This is an array of JRChildrenElement objects */ 
 @property (nonatomic, copy)     NSArray *clients; /**< The object's \e clients property @note This is an array of JRClientsElement objects */ 
+@property (nonatomic,strong)    JRCloudsearch *cloudsearch; /**< The object's \e cloudsearch property */ 
 @property (nonatomic, copy)     JRBoolean *consentVerified; /**< Consent Verified @note A ::JRBoolean property is a property of type \ref typesTable "boolean" and a typedef of \e NSNumber. The accepted values can only be <code>[NSNumber numberWithBool:<em>myBool</em>]</code> or <code>nil</code> */ 
 @property (nonatomic, copy)     JRDateTime *consentVerifiedAt; /**< The object's \e consentVerifiedAt property @note A ::JRDateTime property is a property of type \ref typesTable "dateTime" and a typedef of \e NSDate. The accepted format should be an ISO 8601 dateTime string (e.g., <code>yyyy-MM-dd HH:mm:ss.SSSSSS ZZZ</code>) */ 
 @property (nonatomic, copy)     NSArray *consents; /**< The object's \e consents property @note This is an array of JRConsentsElement objects */ 
 @property (nonatomic, copy)     NSArray *consumerInterests; /**< The object's \e consumerInterests property @note This is an array of JRConsumerInterestsElement objects */ 
 @property (nonatomic, copy)     JRInteger *consumerPoints; /**< The object's \e consumerPoints property @note A ::JRInteger property is a property of type \ref typesTable "integer" and a typedef of \e NSNumber. The accepted values can only be <code>[NSNumber numberWithInteger:<em>myInteger</em>]</code>, <code>[NSNumber numberWithInt:<em>myInt</em>]</code>, or <code>nil</code> */ 
+@property (nonatomic, copy)     NSString *controlField; /**< The object's \e controlField property */ 
 @property (nonatomic, copy)     JRDateTime *coppaCommunicationSentAt; /**< The object's \e coppaCommunicationSentAt property @note A ::JRDateTime property is a property of type \ref typesTable "dateTime" and a typedef of \e NSDate. The accepted format should be an ISO 8601 dateTime string (e.g., <code>yyyy-MM-dd HH:mm:ss.SSSSSS ZZZ</code>) */ 
 @property (nonatomic, copy)     NSString *currentLocation; /**< The object's \e currentLocation property */ 
 @property (nonatomic, copy)     JRDateTime *deactivateAccount; /**< The object's \e deactivateAccount property @note A ::JRDateTime property is a property of type \ref typesTable "dateTime" and a typedef of \e NSDate. The accepted format should be an ISO 8601 dateTime string (e.g., <code>yyyy-MM-dd HH:mm:ss.SSSSSS ZZZ</code>) */ 
@@ -105,17 +109,20 @@
 @property (nonatomic, copy)     JRBoolean *interestWULsounds; /**< The object's \e interestWULsounds property @note A ::JRBoolean property is a property of type \ref typesTable "boolean" and a typedef of \e NSNumber. The accepted values can only be <code>[NSNumber numberWithBool:<em>myBool</em>]</code> or <code>nil</code> */ 
 @property (nonatomic,strong)    JRJanrain *janrain; /**< The object's \e janrain property */ 
 @property (nonatomic, copy)     JRDateTime *lastLogin; /**< The object's \e lastLogin property @note A ::JRDateTime property is a property of type \ref typesTable "dateTime" and a typedef of \e NSDate. The accepted format should be an ISO 8601 dateTime string (e.g., <code>yyyy-MM-dd HH:mm:ss.SSSSSS ZZZ</code>) */ 
+@property (nonatomic, copy)     NSString *lastLoginMethod; /**< The object's \e lastLoginMethod property */ 
 @property (nonatomic, copy)     JRDateTime *lastModifiedDate; /**< The object's \e lastModifiedDate property @note A ::JRDateTime property is a property of type \ref typesTable "dateTime" and a typedef of \e NSDate. The accepted format should be an ISO 8601 dateTime string (e.g., <code>yyyy-MM-dd HH:mm:ss.SSSSSS ZZZ</code>) */ 
 @property (nonatomic, copy)     NSString *lastModifiedSource; /**< The object's \e lastModifiedSource property */ 
 @property (nonatomic, copy)     NSString *lastNamePronunciation; /**< The object's \e lastNamePronunciation property */ 
 @property (nonatomic,strong)    JRLastUsedDevice *lastUsedDevice; /**< The object's \e lastUsedDevice property */ 
 @property (nonatomic, copy)     JRInteger *legacyID; /**< The object's \e legacyID property @note A ::JRInteger property is a property of type \ref typesTable "integer" and a typedef of \e NSNumber. The accepted values can only be <code>[NSNumber numberWithInteger:<em>myInteger</em>]</code>, <code>[NSNumber numberWithInt:<em>myInt</em>]</code>, or <code>nil</code> */ 
 @property (nonatomic, copy)     NSString *maritalStatus; /**< The object's \e maritalStatus property */ 
+@property (nonatomic,strong)    JRMarketingOptIn *marketingOptIn; /**< The object's \e marketingOptIn property */ 
 @property (nonatomic, copy)     NSString *medicalProfessionalRoleSpecified; /**< The object's \e medicalProfessionalRoleSpecified property */ 
 @property (nonatomic, copy)     NSString *middleName; /**< The object's \e middleName property */ 
 @property (nonatomic,strong)    JRMigration *migration; /**< The object's \e migration property */ 
 @property (nonatomic, copy)     NSString *mobileNumber; /**< The object's \e mobileNumber property */ 
 @property (nonatomic, copy)     JRBoolean *mobileNumberNeedVerification; /**< The object's \e mobileNumberNeedVerification property @note A ::JRBoolean property is a property of type \ref typesTable "boolean" and a typedef of \e NSNumber. The accepted values can only be <code>[NSNumber numberWithBool:<em>myBool</em>]</code> or <code>nil</code> */ 
+@property (nonatomic, copy)     JRDateTime *mobileNumberSmsRequestedAt; /**< The object's \e mobileNumberSmsRequestedAt property @note A ::JRDateTime property is a property of type \ref typesTable "dateTime" and a typedef of \e NSDate. The accepted format should be an ISO 8601 dateTime string (e.g., <code>yyyy-MM-dd HH:mm:ss.SSSSSS ZZZ</code>) */ 
 @property (nonatomic, copy)     JRDateTime *mobileNumberVerified; /**< The object's \e mobileNumberVerified property @note A ::JRDateTime property is a property of type \ref typesTable "dateTime" and a typedef of \e NSDate. The accepted format should be an ISO 8601 dateTime string (e.g., <code>yyyy-MM-dd HH:mm:ss.SSSSSS ZZZ</code>) */ 
 @property (nonatomic, copy)     JRBoolean *nettvTCAgreed; /**< The object's \e nettvTCAgreed property @note A ::JRBoolean property is a property of type \ref typesTable "boolean" and a typedef of \e NSNumber. The accepted values can only be <code>[NSNumber numberWithBool:<em>myBool</em>]</code> or <code>nil</code> */ 
 @property (nonatomic, copy)     JRDateTime *nettvTermsAgreedDate; /**< The object's \e nettvTermsAgreedDate property @note A ::JRDateTime property is a property of type \ref typesTable "dateTime" and a typedef of \e NSDate. The accepted format should be an ISO 8601 dateTime string (e.g., <code>yyyy-MM-dd HH:mm:ss.SSSSSS ZZZ</code>) */ 
@@ -141,13 +148,13 @@
 @property (nonatomic, copy)     NSString *ssn; /**< The object's \e ssn property */ 
 @property (nonatomic, copy)     NSArray *statuses; /**< The object's \e statuses property @note This is an array of JRStatusesElement objects */ 
 @property (nonatomic, copy)     JRBoolean *streamiumServicesTCAgreed; /**< The object's \e streamiumServicesTCAgreed property @note A ::JRBoolean property is a property of type \ref typesTable "boolean" and a typedef of \e NSNumber. The accepted values can only be <code>[NSNumber numberWithBool:<em>myBool</em>]</code> or <code>nil</code> */ 
-@property (nonatomic, copy)     JRDateTime *termsAndConditionsAcceptance; /**< The object's \e termsAndConditionsAcceptance property @note A ::JRDateTime property is a property of type \ref typesTable "dateTime" and a typedef of \e NSDate. The accepted format should be an ISO 8601 dateTime string (e.g., <code>yyyy-MM-dd HH:mm:ss.SSSSSS ZZZ</code>) */ 
+@property (nonatomic, copy)     JRDateTime *termsAndConditionsAcceptance; /**< Terms And Conditions Acceptance @note A ::JRDateTime property is a property of type \ref typesTable "dateTime" and a typedef of \e NSDate. The accepted format should be an ISO 8601 dateTime string (e.g., <code>yyyy-MM-dd HH:mm:ss.SSSSSS ZZZ</code>) */ 
 @property (nonatomic, copy)     NSArray *visitedMicroSites; /**< The object's \e visitedMicroSites property @note This is an array of JRVisitedMicroSitesElement objects */ 
 @property (nonatomic, copy)     JRDateTime *weddingDate; /**< The object's \e weddingDate property @note A ::JRDateTime property is a property of type \ref typesTable "dateTime" and a typedef of \e NSDate. The accepted format should be an ISO 8601 dateTime string (e.g., <code>yyyy-MM-dd HH:mm:ss.SSSSSS ZZZ</code>) */ 
 @property (nonatomic, copy)     NSString *wishList; /**< The object's \e wishList property */ 
 @property (nonatomic, readonly) JRObjectId *captureUserId; /**< Simple identifier for this entity @note The \e id of the object should not be set. */ 
-@property (nonatomic, readonly) JRDateTime *lastUpdated; /**< When this entity was last updated @note A ::JRDateTime property is a property of type \ref typesTable "dateTime" and a typedef of \e NSDate. The accepted format should be an ISO 8601 dateTime string (e.g., <code>yyyy-MM-dd HH:mm:ss.SSSSSS ZZZ</code>) */ 
 @property (nonatomic, readonly) JRUuid *uuid; /**< Globally unique indentifier for this entity @note A ::JRUuid property is a property of type \ref typesTable "uuid" and a typedef of \e NSString */ 
+@property (nonatomic, readonly) JRDateTime *lastUpdated; /**< When this entity was last updated @note A ::JRDateTime property is a property of type \ref typesTable "dateTime" and a typedef of \e NSDate. The accepted format should be an ISO 8601 dateTime string (e.g., <code>yyyy-MM-dd HH:mm:ss.SSSSSS ZZZ</code>) */ 
 @property (nonatomic, readonly) JRDateTime *created; /**< When this entity was created @note A ::JRDateTime property is a property of type \ref typesTable "dateTime" and a typedef of \e NSDate. The accepted format should be an ISO 8601 dateTime string (e.g., <code>yyyy-MM-dd HH:mm:ss.SSSSSS ZZZ</code>) */ 
 
 /**
@@ -879,9 +886,11 @@
  *
  * @note
  * This method recursively checks all of the sub-objects of JRCaptureUser:
+ *   - JRCaptureUser#cloudsearch
  *   - JRCaptureUser#identifierInformation
  *   - JRCaptureUser#janrain
  *   - JRCaptureUser#lastUsedDevice
+ *   - JRCaptureUser#marketingOptIn
  *   - JRCaptureUser#migration
  *   - JRCaptureUser#optIn
  *   - JRCaptureUser#primaryAddress

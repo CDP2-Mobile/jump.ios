@@ -29,62 +29,61 @@
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #import "JRCaptureObject+Internal.h"
-#import "JRControlFields.h"
+#import "JRJanrainCloudsearch.h"
 #import "debug_log.h"
 
-@interface JRControlFields ()
+@interface JRJanrainCloudsearch ()
 @property BOOL canBeUpdatedOnCapture;
 @end
 
-@implementation JRControlFields
+@implementation JRJanrainCloudsearch
 {
-    NSString *_one;
-    NSString *_three;
-    NSString *_two;
+    JRInteger *_syncAttempts;
+    JRDateTime *_syncUpdated;
 }
 @synthesize canBeUpdatedOnCapture;
 
-- (NSString *)one
+- (JRInteger *)syncAttempts
 {
-    return _one;
+    return _syncAttempts;
 }
 
-- (void)setOne:(NSString *)newOne
+- (void)setSyncAttempts:(JRInteger *)newSyncAttempts
 {
-    [self.dirtyPropertySet addObject:@"one"];
+    [self.dirtyPropertySet addObject:@"syncAttempts"];
 
-    _one = [newOne copy];
+    _syncAttempts = [newSyncAttempts copy];
 }
 
-- (NSString *)three
+- (NSInteger)getSyncAttemptsIntegerValue
 {
-    return _three;
+    return [_syncAttempts integerValue];
 }
 
-- (void)setThree:(NSString *)newThree
+- (void)setSyncAttemptsWithInteger:(NSInteger)integerVal
 {
-    [self.dirtyPropertySet addObject:@"three"];
+    [self.dirtyPropertySet addObject:@"syncAttempts"];
 
-    _three = [newThree copy];
+    _syncAttempts = [NSNumber numberWithInteger:integerVal];
 }
 
-- (NSString *)two
+- (JRDateTime *)syncUpdated
 {
-    return _two;
+    return _syncUpdated;
 }
 
-- (void)setTwo:(NSString *)newTwo
+- (void)setSyncUpdated:(JRDateTime *)newSyncUpdated
 {
-    [self.dirtyPropertySet addObject:@"two"];
+    [self.dirtyPropertySet addObject:@"syncUpdated"];
 
-    _two = [newTwo copy];
+    _syncUpdated = [newSyncUpdated copy];
 }
 
 - (id)init
 {
     if ((self = [super init]))
     {
-        self.captureObjectPath = @"/janrain/controlFields";
+        self.captureObjectPath = @"/janrain/cloudsearch";
         self.canBeUpdatedOnCapture = YES;
 
 
@@ -93,9 +92,9 @@
     return self;
 }
 
-+ (id)controlFields
++ (id)janrainCloudsearch
 {
-    return [[JRControlFields alloc] init];
+    return [[JRJanrainCloudsearch alloc] init];
 }
 
 - (NSDictionary*)newDictionaryForEncoder:(BOOL)forEncoder
@@ -103,12 +102,10 @@
     NSMutableDictionary *dictionary =
         [NSMutableDictionary dictionaryWithCapacity:10];
 
-    [dictionary setObject:(self.one ? self.one : [NSNull null])
-                   forKey:@"one"];
-    [dictionary setObject:(self.three ? self.three : [NSNull null])
-                   forKey:@"three"];
-    [dictionary setObject:(self.two ? self.two : [NSNull null])
-                   forKey:@"two"];
+    [dictionary setObject:(self.syncAttempts ? [NSNumber numberWithInteger:[self.syncAttempts integerValue]] : [NSNull null])
+                   forKey:@"syncAttempts"];
+    [dictionary setObject:(self.syncUpdated ? [self.syncUpdated stringFromISO8601DateTime] : [NSNull null])
+                   forKey:@"syncUpdated"];
 
     if (forEncoder)
     {
@@ -123,44 +120,40 @@
     return [NSDictionary dictionaryWithDictionary:dictionary];
 }
 
-+ (id)controlFieldsObjectFromDictionary:(NSDictionary*)dictionary withPath:(NSString *)capturePath fromDecoder:(BOOL)fromDecoder
++ (id)janrainCloudsearchObjectFromDictionary:(NSDictionary*)dictionary withPath:(NSString *)capturePath fromDecoder:(BOOL)fromDecoder
 {
     if (!dictionary)
         return nil;
 
-    JRControlFields *controlFields = [JRControlFields controlFields];
+    JRJanrainCloudsearch *janrainCloudsearch = [JRJanrainCloudsearch janrainCloudsearch];
 
     NSSet *dirtyPropertySetCopy = nil;
     if (fromDecoder)
     {
         dirtyPropertySetCopy = [NSSet setWithArray:[dictionary objectForKey:@"dirtyPropertiesSet"]];
-        controlFields.captureObjectPath = ([dictionary objectForKey:@"captureObjectPath"] == [NSNull null] ?
+        janrainCloudsearch.captureObjectPath = ([dictionary objectForKey:@"captureObjectPath"] == [NSNull null] ?
                                                               nil : [dictionary objectForKey:@"captureObjectPath"]);
     }
 
-    controlFields.one =
-        [dictionary objectForKey:@"one"] != [NSNull null] ? 
-        [dictionary objectForKey:@"one"] : nil;
+    janrainCloudsearch.syncAttempts =
+        [dictionary objectForKey:@"syncAttempts"] != [NSNull null] ? 
+        [NSNumber numberWithInteger:[(NSNumber*)[dictionary objectForKey:@"syncAttempts"] integerValue]] : nil;
 
-    controlFields.three =
-        [dictionary objectForKey:@"three"] != [NSNull null] ? 
-        [dictionary objectForKey:@"three"] : nil;
-
-    controlFields.two =
-        [dictionary objectForKey:@"two"] != [NSNull null] ? 
-        [dictionary objectForKey:@"two"] : nil;
+    janrainCloudsearch.syncUpdated =
+        [dictionary objectForKey:@"syncUpdated"] != [NSNull null] ? 
+        [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"syncUpdated"]] : nil;
 
     if (fromDecoder)
-        [controlFields.dirtyPropertySet setSet:dirtyPropertySetCopy];
+        [janrainCloudsearch.dirtyPropertySet setSet:dirtyPropertySetCopy];
     else
-        [controlFields.dirtyPropertySet removeAllObjects];
+        [janrainCloudsearch.dirtyPropertySet removeAllObjects];
 
-    return controlFields;
+    return janrainCloudsearch;
 }
 
-+ (id)controlFieldsObjectFromDictionary:(NSDictionary*)dictionary withPath:(NSString *)capturePath
++ (id)janrainCloudsearchObjectFromDictionary:(NSDictionary*)dictionary withPath:(NSString *)capturePath
 {
-    return [JRControlFields controlFieldsObjectFromDictionary:dictionary withPath:capturePath fromDecoder:NO];
+    return [JRJanrainCloudsearch janrainCloudsearchObjectFromDictionary:dictionary withPath:capturePath fromDecoder:NO];
 }
 
 - (void)replaceFromDictionary:(NSDictionary*)dictionary withPath:(NSString *)capturePath
@@ -171,24 +164,20 @@
 
     self.canBeUpdatedOnCapture = YES;
 
-    self.one =
-        [dictionary objectForKey:@"one"] != [NSNull null] ? 
-        [dictionary objectForKey:@"one"] : nil;
+    self.syncAttempts =
+        [dictionary objectForKey:@"syncAttempts"] != [NSNull null] ? 
+        [NSNumber numberWithInteger:[(NSNumber*)[dictionary objectForKey:@"syncAttempts"] integerValue]] : nil;
 
-    self.three =
-        [dictionary objectForKey:@"three"] != [NSNull null] ? 
-        [dictionary objectForKey:@"three"] : nil;
-
-    self.two =
-        [dictionary objectForKey:@"two"] != [NSNull null] ? 
-        [dictionary objectForKey:@"two"] : nil;
+    self.syncUpdated =
+        [dictionary objectForKey:@"syncUpdated"] != [NSNull null] ? 
+        [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"syncUpdated"]] : nil;
 
     [self.dirtyPropertySet setSet:dirtyPropertySetCopy];
 }
 
 - (NSSet *)updatablePropertySet
 {
-    return [NSSet setWithObjects:@"one", @"three", @"two", nil];
+    return [NSSet setWithObjects:@"syncAttempts", @"syncUpdated", nil];
 }
 
 - (void)setAllPropertiesToDirty
@@ -202,15 +191,15 @@
     NSMutableDictionary *snapshotDictionary =
              [NSMutableDictionary dictionaryWithCapacity:10];
 
-    [snapshotDictionary setObject:[self.dirtyPropertySet copy] forKey:@"controlFields"];
+    [snapshotDictionary setObject:[self.dirtyPropertySet copy] forKey:@"janrainCloudsearch"];
 
     return [NSDictionary dictionaryWithDictionary:snapshotDictionary];
 }
 
 - (void)restoreDirtyPropertiesFromSnapshotDictionary:(NSDictionary *)snapshotDictionary
 {
-    if ([snapshotDictionary objectForKey:@"controlFields"])
-        [self.dirtyPropertySet addObjectsFromArray:[[snapshotDictionary objectForKey:@"controlFields"] allObjects]];
+    if ([snapshotDictionary objectForKey:@"janrainCloudsearch"])
+        [self.dirtyPropertySet addObjectsFromArray:[[snapshotDictionary objectForKey:@"janrainCloudsearch"] allObjects]];
 
 }
 
@@ -219,14 +208,11 @@
     NSMutableDictionary *dictionary =
          [NSMutableDictionary dictionaryWithCapacity:10];
 
-    if ([self.dirtyPropertySet containsObject:@"one"])
-        [dictionary setObject:(self.one ? self.one : [NSNull null]) forKey:@"one"];
+    if ([self.dirtyPropertySet containsObject:@"syncAttempts"])
+        [dictionary setObject:(self.syncAttempts ? [NSNumber numberWithInteger:[self.syncAttempts integerValue]] : [NSNull null]) forKey:@"syncAttempts"];
 
-    if ([self.dirtyPropertySet containsObject:@"three"])
-        [dictionary setObject:(self.three ? self.three : [NSNull null]) forKey:@"three"];
-
-    if ([self.dirtyPropertySet containsObject:@"two"])
-        [dictionary setObject:(self.two ? self.two : [NSNull null]) forKey:@"two"];
+    if ([self.dirtyPropertySet containsObject:@"syncUpdated"])
+        [dictionary setObject:(self.syncUpdated ? [self.syncUpdated stringFromISO8601DateTime] : [NSNull null]) forKey:@"syncUpdated"];
 
     [self.dirtyPropertySet removeAllObjects];
     return [NSDictionary dictionaryWithDictionary:dictionary];
@@ -242,9 +228,8 @@
     NSMutableDictionary *dictionary =
          [NSMutableDictionary dictionaryWithCapacity:10];
 
-    [dictionary setObject:(self.one ? self.one : [NSNull null]) forKey:@"one"];
-    [dictionary setObject:(self.three ? self.three : [NSNull null]) forKey:@"three"];
-    [dictionary setObject:(self.two ? self.two : [NSNull null]) forKey:@"two"];
+    [dictionary setObject:(self.syncAttempts ? [NSNumber numberWithInteger:[self.syncAttempts integerValue]] : [NSNull null]) forKey:@"syncAttempts"];
+    [dictionary setObject:(self.syncUpdated ? [self.syncUpdated stringFromISO8601DateTime] : [NSNull null]) forKey:@"syncUpdated"];
 
     [self.dirtyPropertySet removeAllObjects];
     return [NSDictionary dictionaryWithDictionary:dictionary];
@@ -258,19 +243,15 @@
     return NO;
 }
 
-- (BOOL)isEqualToControlFields:(JRControlFields *)otherControlFields
+- (BOOL)isEqualToJanrainCloudsearch:(JRJanrainCloudsearch *)otherJanrainCloudsearch
 {
-    if (!self.one && !otherControlFields.one) /* Keep going... */;
-    else if ((self.one == nil) ^ (otherControlFields.one == nil)) return NO; // xor
-    else if (![self.one isEqualToString:otherControlFields.one]) return NO;
+    if (!self.syncAttempts && !otherJanrainCloudsearch.syncAttempts) /* Keep going... */;
+    else if ((self.syncAttempts == nil) ^ (otherJanrainCloudsearch.syncAttempts == nil)) return NO; // xor
+    else if (![self.syncAttempts isEqualToNumber:otherJanrainCloudsearch.syncAttempts]) return NO;
 
-    if (!self.three && !otherControlFields.three) /* Keep going... */;
-    else if ((self.three == nil) ^ (otherControlFields.three == nil)) return NO; // xor
-    else if (![self.three isEqualToString:otherControlFields.three]) return NO;
-
-    if (!self.two && !otherControlFields.two) /* Keep going... */;
-    else if ((self.two == nil) ^ (otherControlFields.two == nil)) return NO; // xor
-    else if (![self.two isEqualToString:otherControlFields.two]) return NO;
+    if (!self.syncUpdated && !otherJanrainCloudsearch.syncUpdated) /* Keep going... */;
+    else if ((self.syncUpdated == nil) ^ (otherJanrainCloudsearch.syncUpdated == nil)) return NO; // xor
+    else if (![self.syncUpdated isEqualToDate:otherJanrainCloudsearch.syncUpdated]) return NO;
 
     return YES;
 }
@@ -280,9 +261,8 @@
     NSMutableDictionary *dictionary =
         [NSMutableDictionary dictionaryWithCapacity:10];
 
-    [dictionary setObject:@"NSString" forKey:@"one"];
-    [dictionary setObject:@"NSString" forKey:@"three"];
-    [dictionary setObject:@"NSString" forKey:@"two"];
+    [dictionary setObject:@"JRInteger" forKey:@"syncAttempts"];
+    [dictionary setObject:@"JRDateTime" forKey:@"syncUpdated"];
 
     return [NSDictionary dictionaryWithDictionary:dictionary];
 }

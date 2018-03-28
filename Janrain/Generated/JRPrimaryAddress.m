@@ -505,8 +505,8 @@
     if ([self.dirtyPropertySet containsObject:@"state"])
         [dictionary setObject:(self.state ? self.state : [NSNull null]) forKey:@"state"];
 
-//    if ([self.dirtyPropertySet containsObject:@"stateAbbreviation"])
-//        [dictionary setObject:(self.stateAbbreviation ? self.stateAbbreviation : [NSNull null]) forKey:@"stateAbbreviation"];
+    if ([self.dirtyPropertySet containsObject:@"stateAbbreviation"])
+        [dictionary setObject:(self.stateAbbreviation ? self.stateAbbreviation : [NSNull null]) forKey:@"stateAbbreviation"];
 
     if ([self.dirtyPropertySet containsObject:@"zip"])
         [dictionary setObject:(self.zip ? self.zip : [NSNull null]) forKey:@"zip"];

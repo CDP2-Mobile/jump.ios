@@ -95,7 +95,6 @@
        withTask:(NSURLSessionTask *)task
    returnFullResponse:(BOOL)returnFullResponse
               withTag:(id)userdata
-
 {
     //DLog(@"");
 
@@ -352,11 +351,11 @@ static JRConnectionManager *singleton = nil;
     NSStringEncoding encoding       = NSUTF8StringEncoding;
     
     id <JRConnectionManagerDelegate> delegate = [connectionData delegate];
-    
+
     if (![connectionData fullResponse])
     {
         NSString *payload = [[NSString alloc] initWithData:responseBody encoding:encoding];
-        
+
         if ([delegate respondsToSelector:@selector(connectionDidFinishLoadingWithPayload:request:andTag:)])
             [delegate connectionDidFinishLoadingWithPayload:payload request:request andTag:userData];
     }
@@ -367,7 +366,7 @@ static JRConnectionManager *singleton = nil;
             [delegate connectionDidFinishLoadingWithFullResponse:fullResponse unencodedPayload:responseBody
                                                          request:request andTag:userData];
     }
-    
+
     JRConnectionManager *connectionManager = [JRConnectionManager getJRConnectionManager];
     [[connectionManager connectionBuffers] removeObject:connectionData];
     

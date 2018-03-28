@@ -34,33 +34,31 @@
 #import "JRNSDate+ISO8601_CaptureDateTimeString.h"
 
 /**
- * @brief A JRLastUsedDevice object
+ * @brief A JRJanrainCloudsearch object
  **/
-@interface JRLastUsedDevice : JRCaptureObject
-@property (nonatomic, copy)     NSString *deviceId; /**< The object's \e deviceId property */ 
-@property (nonatomic, copy)     NSString *deviceToken; /**< The object's \e deviceToken property */ 
-@property (nonatomic, copy)     NSString *deviceType; /**< The object's \e deviceType property */ 
-@property (nonatomic, copy)     NSString *tokenType; /**< The object's \e tokenType property */ 
+@interface JRJanrainCloudsearch : JRCaptureObject
+@property (nonatomic, copy)     JRInteger *syncAttempts; /**< The object's \e syncAttempts property @note A ::JRInteger property is a property of type \ref typesTable "integer" and a typedef of \e NSNumber. The accepted values can only be <code>[NSNumber numberWithInteger:<em>myInteger</em>]</code>, <code>[NSNumber numberWithInt:<em>myInt</em>]</code>, or <code>nil</code> */ 
+@property (nonatomic, copy)     JRDateTime *syncUpdated; /**< The object's \e syncUpdated property @note A ::JRDateTime property is a property of type \ref typesTable "dateTime" and a typedef of \e NSDate. The accepted format should be an ISO 8601 dateTime string (e.g., <code>yyyy-MM-dd HH:mm:ss.SSSSSS ZZZ</code>) */ 
 
 /**
  * @name Constructors
  **/
 /*@{*/
 /**
- * Default instance constructor. Returns an empty JRLastUsedDevice object
+ * Default instance constructor. Returns an empty JRJanrainCloudsearch object
  *
  * @return
- *   A JRLastUsedDevice object
+ *   A JRJanrainCloudsearch object
  **/
 - (id)init;
 
 /**
- * Default class constructor. Returns an empty JRLastUsedDevice object
+ * Default class constructor. Returns an empty JRJanrainCloudsearch object
  *
  * @return
- *   A JRLastUsedDevice object
+ *   A JRJanrainCloudsearch object
  **/
-+ (id)lastUsedDevice;
++ (id)janrainCloudsearch;
 
 /*@}*/
 
@@ -85,6 +83,21 @@
  * TODO: Doxygen doc
  **/
 - (void)updateOnCaptureForDelegate:(id<JRCaptureObjectDelegate>)delegate context:(NSObject *)context;
+/*@}*/
+
+/**
+ * @name Primitive Getters/Setters 
+ **/
+/*@{*/
+/**
+ * Returns the primitive integer value stored in the syncAttempts property. Will return \c 0 if the
+ * syncAttempts is  nil. **/
+- (NSInteger)getSyncAttemptsIntegerValue;
+
+/**
+ * Sets the syncAttempts property to a the primitive integer value.
+ **/
+- (void)setSyncAttemptsWithInteger:(NSInteger)integerVal;
 /*@}*/
 
 @end

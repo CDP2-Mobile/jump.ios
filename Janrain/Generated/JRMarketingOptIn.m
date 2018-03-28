@@ -29,62 +29,49 @@
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #import "JRCaptureObject+Internal.h"
-#import "JRControlFields.h"
+#import "JRMarketingOptIn.h"
 #import "debug_log.h"
 
-@interface JRControlFields ()
+@interface JRMarketingOptIn ()
 @property BOOL canBeUpdatedOnCapture;
 @end
 
-@implementation JRControlFields
+@implementation JRMarketingOptIn
 {
-    NSString *_one;
-    NSString *_three;
-    NSString *_two;
+    NSString *_locale;
+    JRDateTime *_timestamp;
 }
 @synthesize canBeUpdatedOnCapture;
 
-- (NSString *)one
+- (NSString *)locale
 {
-    return _one;
+    return _locale;
 }
 
-- (void)setOne:(NSString *)newOne
+- (void)setLocale:(NSString *)newLocale
 {
-    [self.dirtyPropertySet addObject:@"one"];
+    [self.dirtyPropertySet addObject:@"locale"];
 
-    _one = [newOne copy];
+    _locale = [newLocale copy];
 }
 
-- (NSString *)three
+- (JRDateTime *)timestamp
 {
-    return _three;
+    return _timestamp;
 }
 
-- (void)setThree:(NSString *)newThree
+- (void)setTimestamp:(JRDateTime *)newTimestamp
 {
-    [self.dirtyPropertySet addObject:@"three"];
+    [self.dirtyPropertySet addObject:@"timestamp"];
 
-    _three = [newThree copy];
-}
-
-- (NSString *)two
-{
-    return _two;
-}
-
-- (void)setTwo:(NSString *)newTwo
-{
-    [self.dirtyPropertySet addObject:@"two"];
-
-    _two = [newTwo copy];
+    _timestamp = [newTimestamp copy];
 }
 
 - (id)init
 {
     if ((self = [super init]))
     {
-        self.captureObjectPath = @"/janrain/controlFields";
+        self.captureObjectPath = @"/marketingOptIn";
         self.canBeUpdatedOnCapture = YES;
 
 
@@ -93,9 +80,9 @@
     return self;
 }
 
-+ (id)controlFields
++ (id)marketingOptIn
 {
-    return [[JRControlFields alloc] init];
+    return [[JRMarketingOptIn alloc] init];
 }
 
 - (NSDictionary*)newDictionaryForEncoder:(BOOL)forEncoder
@@ -103,12 +90,10 @@
     NSMutableDictionary *dictionary =
         [NSMutableDictionary dictionaryWithCapacity:10];
 
-    [dictionary setObject:(self.one ? self.one : [NSNull null])
-                   forKey:@"one"];
-    [dictionary setObject:(self.three ? self.three : [NSNull null])
-                   forKey:@"three"];
-    [dictionary setObject:(self.two ? self.two : [NSNull null])
-                   forKey:@"two"];
+    [dictionary setObject:(self.locale ? self.locale : [NSNull null])
+                   forKey:@"locale"];
+    [dictionary setObject:(self.timestamp ? [self.timestamp stringFromISO8601DateTime] : [NSNull null])
+                   forKey:@"timestamp"];
 
     if (forEncoder)
     {
@@ -123,44 +108,40 @@
     return [NSDictionary dictionaryWithDictionary:dictionary];
 }
 
-+ (id)controlFieldsObjectFromDictionary:(NSDictionary*)dictionary withPath:(NSString *)capturePath fromDecoder:(BOOL)fromDecoder
++ (id)marketingOptInObjectFromDictionary:(NSDictionary*)dictionary withPath:(NSString *)capturePath fromDecoder:(BOOL)fromDecoder
 {
     if (!dictionary)
         return nil;
 
-    JRControlFields *controlFields = [JRControlFields controlFields];
+    JRMarketingOptIn *marketingOptIn = [JRMarketingOptIn marketingOptIn];
 
     NSSet *dirtyPropertySetCopy = nil;
     if (fromDecoder)
     {
         dirtyPropertySetCopy = [NSSet setWithArray:[dictionary objectForKey:@"dirtyPropertiesSet"]];
-        controlFields.captureObjectPath = ([dictionary objectForKey:@"captureObjectPath"] == [NSNull null] ?
+        marketingOptIn.captureObjectPath = ([dictionary objectForKey:@"captureObjectPath"] == [NSNull null] ?
                                                               nil : [dictionary objectForKey:@"captureObjectPath"]);
     }
 
-    controlFields.one =
-        [dictionary objectForKey:@"one"] != [NSNull null] ? 
-        [dictionary objectForKey:@"one"] : nil;
+    marketingOptIn.locale =
+        [dictionary objectForKey:@"locale"] != [NSNull null] ? 
+        [dictionary objectForKey:@"locale"] : nil;
 
-    controlFields.three =
-        [dictionary objectForKey:@"three"] != [NSNull null] ? 
-        [dictionary objectForKey:@"three"] : nil;
-
-    controlFields.two =
-        [dictionary objectForKey:@"two"] != [NSNull null] ? 
-        [dictionary objectForKey:@"two"] : nil;
+    marketingOptIn.timestamp =
+        [dictionary objectForKey:@"timestamp"] != [NSNull null] ? 
+        [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"timestamp"]] : nil;
 
     if (fromDecoder)
-        [controlFields.dirtyPropertySet setSet:dirtyPropertySetCopy];
+        [marketingOptIn.dirtyPropertySet setSet:dirtyPropertySetCopy];
     else
-        [controlFields.dirtyPropertySet removeAllObjects];
+        [marketingOptIn.dirtyPropertySet removeAllObjects];
 
-    return controlFields;
+    return marketingOptIn;
 }
 
-+ (id)controlFieldsObjectFromDictionary:(NSDictionary*)dictionary withPath:(NSString *)capturePath
++ (id)marketingOptInObjectFromDictionary:(NSDictionary*)dictionary withPath:(NSString *)capturePath
 {
-    return [JRControlFields controlFieldsObjectFromDictionary:dictionary withPath:capturePath fromDecoder:NO];
+    return [JRMarketingOptIn marketingOptInObjectFromDictionary:dictionary withPath:capturePath fromDecoder:NO];
 }
 
 - (void)replaceFromDictionary:(NSDictionary*)dictionary withPath:(NSString *)capturePath
@@ -171,24 +152,20 @@
 
     self.canBeUpdatedOnCapture = YES;
 
-    self.one =
-        [dictionary objectForKey:@"one"] != [NSNull null] ? 
-        [dictionary objectForKey:@"one"] : nil;
+    self.locale =
+        [dictionary objectForKey:@"locale"] != [NSNull null] ? 
+        [dictionary objectForKey:@"locale"] : nil;
 
-    self.three =
-        [dictionary objectForKey:@"three"] != [NSNull null] ? 
-        [dictionary objectForKey:@"three"] : nil;
-
-    self.two =
-        [dictionary objectForKey:@"two"] != [NSNull null] ? 
-        [dictionary objectForKey:@"two"] : nil;
+    self.timestamp =
+        [dictionary objectForKey:@"timestamp"] != [NSNull null] ? 
+        [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"timestamp"]] : nil;
 
     [self.dirtyPropertySet setSet:dirtyPropertySetCopy];
 }
 
 - (NSSet *)updatablePropertySet
 {
-    return [NSSet setWithObjects:@"one", @"three", @"two", nil];
+    return [NSSet setWithObjects:@"locale", @"timestamp", nil];
 }
 
 - (void)setAllPropertiesToDirty
@@ -202,15 +179,15 @@
     NSMutableDictionary *snapshotDictionary =
              [NSMutableDictionary dictionaryWithCapacity:10];
 
-    [snapshotDictionary setObject:[self.dirtyPropertySet copy] forKey:@"controlFields"];
+    [snapshotDictionary setObject:[self.dirtyPropertySet copy] forKey:@"marketingOptIn"];
 
     return [NSDictionary dictionaryWithDictionary:snapshotDictionary];
 }
 
 - (void)restoreDirtyPropertiesFromSnapshotDictionary:(NSDictionary *)snapshotDictionary
 {
-    if ([snapshotDictionary objectForKey:@"controlFields"])
-        [self.dirtyPropertySet addObjectsFromArray:[[snapshotDictionary objectForKey:@"controlFields"] allObjects]];
+    if ([snapshotDictionary objectForKey:@"marketingOptIn"])
+        [self.dirtyPropertySet addObjectsFromArray:[[snapshotDictionary objectForKey:@"marketingOptIn"] allObjects]];
 
 }
 
@@ -219,14 +196,11 @@
     NSMutableDictionary *dictionary =
          [NSMutableDictionary dictionaryWithCapacity:10];
 
-    if ([self.dirtyPropertySet containsObject:@"one"])
-        [dictionary setObject:(self.one ? self.one : [NSNull null]) forKey:@"one"];
+    if ([self.dirtyPropertySet containsObject:@"locale"])
+        [dictionary setObject:(self.locale ? self.locale : [NSNull null]) forKey:@"locale"];
 
-    if ([self.dirtyPropertySet containsObject:@"three"])
-        [dictionary setObject:(self.three ? self.three : [NSNull null]) forKey:@"three"];
-
-    if ([self.dirtyPropertySet containsObject:@"two"])
-        [dictionary setObject:(self.two ? self.two : [NSNull null]) forKey:@"two"];
+    if ([self.dirtyPropertySet containsObject:@"timestamp"])
+        [dictionary setObject:(self.timestamp ? [self.timestamp stringFromISO8601DateTime] : [NSNull null]) forKey:@"timestamp"];
 
     [self.dirtyPropertySet removeAllObjects];
     return [NSDictionary dictionaryWithDictionary:dictionary];
@@ -242,9 +216,8 @@
     NSMutableDictionary *dictionary =
          [NSMutableDictionary dictionaryWithCapacity:10];
 
-    [dictionary setObject:(self.one ? self.one : [NSNull null]) forKey:@"one"];
-    [dictionary setObject:(self.three ? self.three : [NSNull null]) forKey:@"three"];
-    [dictionary setObject:(self.two ? self.two : [NSNull null]) forKey:@"two"];
+    [dictionary setObject:(self.locale ? self.locale : [NSNull null]) forKey:@"locale"];
+    [dictionary setObject:(self.timestamp ? [self.timestamp stringFromISO8601DateTime] : [NSNull null]) forKey:@"timestamp"];
 
     [self.dirtyPropertySet removeAllObjects];
     return [NSDictionary dictionaryWithDictionary:dictionary];
@@ -258,19 +231,15 @@
     return NO;
 }
 
-- (BOOL)isEqualToControlFields:(JRControlFields *)otherControlFields
+- (BOOL)isEqualToMarketingOptIn:(JRMarketingOptIn *)otherMarketingOptIn
 {
-    if (!self.one && !otherControlFields.one) /* Keep going... */;
-    else if ((self.one == nil) ^ (otherControlFields.one == nil)) return NO; // xor
-    else if (![self.one isEqualToString:otherControlFields.one]) return NO;
+    if (!self.locale && !otherMarketingOptIn.locale) /* Keep going... */;
+    else if ((self.locale == nil) ^ (otherMarketingOptIn.locale == nil)) return NO; // xor
+    else if (![self.locale isEqualToString:otherMarketingOptIn.locale]) return NO;
 
-    if (!self.three && !otherControlFields.three) /* Keep going... */;
-    else if ((self.three == nil) ^ (otherControlFields.three == nil)) return NO; // xor
-    else if (![self.three isEqualToString:otherControlFields.three]) return NO;
-
-    if (!self.two && !otherControlFields.two) /* Keep going... */;
-    else if ((self.two == nil) ^ (otherControlFields.two == nil)) return NO; // xor
-    else if (![self.two isEqualToString:otherControlFields.two]) return NO;
+    if (!self.timestamp && !otherMarketingOptIn.timestamp) /* Keep going... */;
+    else if ((self.timestamp == nil) ^ (otherMarketingOptIn.timestamp == nil)) return NO; // xor
+    else if (![self.timestamp isEqualToDate:otherMarketingOptIn.timestamp]) return NO;
 
     return YES;
 }
@@ -280,9 +249,8 @@
     NSMutableDictionary *dictionary =
         [NSMutableDictionary dictionaryWithCapacity:10];
 
-    [dictionary setObject:@"NSString" forKey:@"one"];
-    [dictionary setObject:@"NSString" forKey:@"three"];
-    [dictionary setObject:@"NSString" forKey:@"two"];
+    [dictionary setObject:@"NSString" forKey:@"locale"];
+    [dictionary setObject:@"JRDateTime" forKey:@"timestamp"];
 
     return [NSDictionary dictionaryWithDictionary:dictionary];
 }

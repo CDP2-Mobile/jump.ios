@@ -53,6 +53,11 @@
 - (BOOL)isEqualToClientsElement:(JRClientsElement *)otherClientsElement;
 @end
 
+@interface JRCloudsearch (JRCloudsearch_InternalMethods)
++ (id)cloudsearchObjectFromDictionary:(NSDictionary*)dictionary withPath:(NSString *)capturePath fromDecoder:(BOOL)fromDecoder;
+- (BOOL)isEqualToCloudsearch:(JRCloudsearch *)otherCloudsearch;
+@end
+
 @interface JRConsentsElement (JRConsentsElement_InternalMethods)
 + (id)consentsElementFromDictionary:(NSDictionary*)dictionary withPath:(NSString *)capturePath fromDecoder:(BOOL)fromDecoder;
 - (BOOL)isEqualToConsentsElement:(JRConsentsElement *)otherConsentsElement;
@@ -86,6 +91,11 @@
 @interface JRLastUsedDevice (JRLastUsedDevice_InternalMethods)
 + (id)lastUsedDeviceObjectFromDictionary:(NSDictionary*)dictionary withPath:(NSString *)capturePath fromDecoder:(BOOL)fromDecoder;
 - (BOOL)isEqualToLastUsedDevice:(JRLastUsedDevice *)otherLastUsedDevice;
+@end
+
+@interface JRMarketingOptIn (JRMarketingOptIn_InternalMethods)
++ (id)marketingOptInObjectFromDictionary:(NSDictionary*)dictionary withPath:(NSString *)capturePath fromDecoder:(BOOL)fromDecoder;
+- (BOOL)isEqualToMarketingOptIn:(JRMarketingOptIn *)otherMarketingOptIn;
 @end
 
 @interface JRMigration (JRMigration_InternalMethods)
@@ -973,11 +983,13 @@
     NSString *_catalogLocaleItem;
     NSArray *_children;
     NSArray *_clients;
+    JRCloudsearch *_cloudsearch;
     JRBoolean *_consentVerified;
     JRDateTime *_consentVerifiedAt;
     NSArray *_consents;
     NSArray *_consumerInterests;
     JRInteger *_consumerPoints;
+    NSString *_controlField;
     JRDateTime *_coppaCommunicationSentAt;
     NSString *_currentLocation;
     JRDateTime *_deactivateAccount;
@@ -1007,17 +1019,20 @@
     JRBoolean *_interestWULsounds;
     JRJanrain *_janrain;
     JRDateTime *_lastLogin;
+    NSString *_lastLoginMethod;
     JRDateTime *_lastModifiedDate;
     NSString *_lastModifiedSource;
     NSString *_lastNamePronunciation;
     JRLastUsedDevice *_lastUsedDevice;
     JRInteger *_legacyID;
     NSString *_maritalStatus;
+    JRMarketingOptIn *_marketingOptIn;
     NSString *_medicalProfessionalRoleSpecified;
     NSString *_middleName;
     JRMigration *_migration;
     NSString *_mobileNumber;
     JRBoolean *_mobileNumberNeedVerification;
+    JRDateTime *_mobileNumberSmsRequestedAt;
     JRDateTime *_mobileNumberVerified;
     JRBoolean *_nettvTCAgreed;
     JRDateTime *_nettvTermsAgreedDate;
@@ -1048,8 +1063,8 @@
     JRDateTime *_weddingDate;
     NSString *_wishList;
     JRObjectId *_captureUserId;
-    JRDateTime *_lastUpdated;
     JRUuid *_uuid;
+    JRDateTime *_lastUpdated;
     JRDateTime *_created;
 }
 @synthesize canBeUpdatedOnCapture;
@@ -1214,6 +1229,20 @@
     _clients = [newClients copy];
 }
 
+- (JRCloudsearch *)cloudsearch
+{
+    return _cloudsearch;
+}
+
+- (void)setCloudsearch:(JRCloudsearch *)newCloudsearch
+{
+    [self.dirtyPropertySet addObject:@"cloudsearch"];
+
+    _cloudsearch = newCloudsearch;
+
+    [_cloudsearch setAllPropertiesToDirty];
+}
+
 - (JRBoolean *)consentVerified
 {
     return _consentVerified;
@@ -1292,6 +1321,18 @@
     [self.dirtyPropertySet addObject:@"consumerPoints"];
 
     _consumerPoints = [NSNumber numberWithInteger:integerVal];
+}
+
+- (NSString *)controlField
+{
+    return _controlField;
+}
+
+- (void)setControlField:(NSString *)newControlField
+{
+    [self.dirtyPropertySet addObject:@"controlField"];
+
+    _controlField = [newControlField copy];
 }
 
 - (JRDateTime *)coppaCommunicationSentAt
@@ -1738,6 +1779,18 @@
     _lastLogin = [newLastLogin copy];
 }
 
+- (NSString *)lastLoginMethod
+{
+    return _lastLoginMethod;
+}
+
+- (void)setLastLoginMethod:(NSString *)newLastLoginMethod
+{
+    [self.dirtyPropertySet addObject:@"lastLoginMethod"];
+
+    _lastLoginMethod = [newLastLoginMethod copy];
+}
+
 - (JRDateTime *)lastModifiedDate
 {
     return _lastModifiedDate;
@@ -1824,6 +1877,20 @@
     _maritalStatus = [newMaritalStatus copy];
 }
 
+- (JRMarketingOptIn *)marketingOptIn
+{
+    return _marketingOptIn;
+}
+
+- (void)setMarketingOptIn:(JRMarketingOptIn *)newMarketingOptIn
+{
+    [self.dirtyPropertySet addObject:@"marketingOptIn"];
+
+    _marketingOptIn = newMarketingOptIn;
+
+    [_marketingOptIn setAllPropertiesToDirty];
+}
+
 - (NSString *)medicalProfessionalRoleSpecified
 {
     return _medicalProfessionalRoleSpecified;
@@ -1896,6 +1963,18 @@
     [self.dirtyPropertySet addObject:@"mobileNumberNeedVerification"];
 
     _mobileNumberNeedVerification = [NSNumber numberWithBool:boolVal];
+}
+
+- (JRDateTime *)mobileNumberSmsRequestedAt
+{
+    return _mobileNumberSmsRequestedAt;
+}
+
+- (void)setMobileNumberSmsRequestedAt:(JRDateTime *)newMobileNumberSmsRequestedAt
+{
+    [self.dirtyPropertySet addObject:@"mobileNumberSmsRequestedAt"];
+
+    _mobileNumberSmsRequestedAt = [newMobileNumberSmsRequestedAt copy];
 }
 
 - (JRDateTime *)mobileNumberVerified
@@ -2003,7 +2082,6 @@
 
 - (void)setPassword:(JRPassword *)newPassword
 {
-    if (newPassword)
     [self.dirtyPropertySet addObject:@"password"];
 
     _password = [newPassword copy];
@@ -2309,18 +2387,6 @@
     _captureUserId = [newCaptureUserId copy];
 }
 
-- (JRDateTime *)lastUpdated
-{
-    return _lastUpdated;
-}
-
-- (void)setLastUpdated:(JRDateTime *)newLastUpdated
-{
-    [self.dirtyPropertySet addObject:@"lastUpdated"];
-
-    _lastUpdated = [newLastUpdated copy];
-}
-
 - (JRUuid *)uuid
 {
     return _uuid;
@@ -2331,6 +2397,18 @@
     [self.dirtyPropertySet addObject:@"uuid"];
 
     _uuid = [newUuid copy];
+}
+
+- (JRDateTime *)lastUpdated
+{
+    return _lastUpdated;
+}
+
+- (void)setLastUpdated:(JRDateTime *)newLastUpdated
+{
+    [self.dirtyPropertySet addObject:@"lastUpdated"];
+
+    _lastUpdated = [newLastUpdated copy];
 }
 
 - (JRDateTime *)created
@@ -2352,9 +2430,11 @@
         self.captureObjectPath = @"";
         self.canBeUpdatedOnCapture = YES;
 
+        _cloudsearch = [[JRCloudsearch alloc] init];
         _identifierInformation = [[JRIdentifierInformation alloc] init];
         _janrain = [[JRJanrain alloc] init];
         _lastUsedDevice = [[JRLastUsedDevice alloc] init];
+        _marketingOptIn = [[JRMarketingOptIn alloc] init];
         _migration = [[JRMigration alloc] init];
         _optIn = [[JROptIn alloc] init];
         _primaryAddress = [[JRPrimaryAddress alloc] init];
@@ -2400,6 +2480,8 @@
                    forKey:@"children"];
     [dictionary setObject:(self.clients ? [self.clients arrayOfClientsDictionariesFromClientsElementsForEncoder:forEncoder] : [NSNull null])
                    forKey:@"clients"];
+    [dictionary setObject:(self.cloudsearch ? [self.cloudsearch newDictionaryForEncoder:forEncoder] : [NSNull null])
+                   forKey:@"cloudsearch"];
     [dictionary setObject:(self.consentVerified ? [NSNumber numberWithBool:[self.consentVerified boolValue]] : [NSNull null])
                    forKey:@"consentVerified"];
     [dictionary setObject:(self.consentVerifiedAt ? [self.consentVerifiedAt stringFromISO8601DateTime] : [NSNull null])
@@ -2410,6 +2492,8 @@
                    forKey:@"consumerInterests"];
     [dictionary setObject:(self.consumerPoints ? [NSNumber numberWithInteger:[self.consumerPoints integerValue]] : [NSNull null])
                    forKey:@"consumerPoints"];
+    [dictionary setObject:(self.controlField ? self.controlField : [NSNull null])
+                   forKey:@"controlField"];
     [dictionary setObject:(self.coppaCommunicationSentAt ? [self.coppaCommunicationSentAt stringFromISO8601DateTime] : [NSNull null])
                    forKey:@"coppaCommunicationSentAt"];
     [dictionary setObject:(self.currentLocation ? self.currentLocation : [NSNull null])
@@ -2468,6 +2552,8 @@
                    forKey:@"janrain"];
     [dictionary setObject:(self.lastLogin ? [self.lastLogin stringFromISO8601DateTime] : [NSNull null])
                    forKey:@"lastLogin"];
+    [dictionary setObject:(self.lastLoginMethod ? self.lastLoginMethod : [NSNull null])
+                   forKey:@"lastLoginMethod"];
     [dictionary setObject:(self.lastModifiedDate ? [self.lastModifiedDate stringFromISO8601DateTime] : [NSNull null])
                    forKey:@"lastModifiedDate"];
     [dictionary setObject:(self.lastModifiedSource ? self.lastModifiedSource : [NSNull null])
@@ -2480,6 +2566,8 @@
                    forKey:@"legacyID"];
     [dictionary setObject:(self.maritalStatus ? self.maritalStatus : [NSNull null])
                    forKey:@"maritalStatus"];
+    [dictionary setObject:(self.marketingOptIn ? [self.marketingOptIn newDictionaryForEncoder:forEncoder] : [NSNull null])
+                   forKey:@"marketingOptIn"];
     [dictionary setObject:(self.medicalProfessionalRoleSpecified ? self.medicalProfessionalRoleSpecified : [NSNull null])
                    forKey:@"medicalProfessionalRoleSpecified"];
     [dictionary setObject:(self.middleName ? self.middleName : [NSNull null])
@@ -2490,6 +2578,8 @@
                    forKey:@"mobileNumber"];
     [dictionary setObject:(self.mobileNumberNeedVerification ? [NSNumber numberWithBool:[self.mobileNumberNeedVerification boolValue]] : [NSNull null])
                    forKey:@"mobileNumberNeedVerification"];
+    [dictionary setObject:(self.mobileNumberSmsRequestedAt ? [self.mobileNumberSmsRequestedAt stringFromISO8601DateTime] : [NSNull null])
+                   forKey:@"mobileNumberSmsRequestedAt"];
     [dictionary setObject:(self.mobileNumberVerified ? [self.mobileNumberVerified stringFromISO8601DateTime] : [NSNull null])
                    forKey:@"mobileNumberVerified"];
     [dictionary setObject:(self.nettvTCAgreed ? [NSNumber numberWithBool:[self.nettvTCAgreed boolValue]] : [NSNull null])
@@ -2550,10 +2640,10 @@
                    forKey:@"wishList"];
     [dictionary setObject:(self.captureUserId ? [NSNumber numberWithInteger:[self.captureUserId integerValue]] : [NSNull null])
                    forKey:@"id"];
-    [dictionary setObject:(self.lastUpdated ? [self.lastUpdated stringFromISO8601DateTime] : [NSNull null])
-                   forKey:@"lastUpdated"];
     [dictionary setObject:(self.uuid ? self.uuid : [NSNull null])
                    forKey:@"uuid"];
+    [dictionary setObject:(self.lastUpdated ? [self.lastUpdated stringFromISO8601DateTime] : [NSNull null])
+                   forKey:@"lastUpdated"];
     [dictionary setObject:(self.created ? [self.created stringFromISO8601DateTime] : [NSNull null])
                    forKey:@"created"];
 
@@ -2637,6 +2727,10 @@
         [dictionary objectForKey:@"clients"] != [NSNull null] ? 
         [(NSArray*)[dictionary objectForKey:@"clients"] arrayOfClientsElementsFromClientsDictionariesWithPath:captureUser.captureObjectPath fromDecoder:fromDecoder] : nil;
 
+    captureUser.cloudsearch =
+        [dictionary objectForKey:@"cloudsearch"] != [NSNull null] ? 
+        [JRCloudsearch cloudsearchObjectFromDictionary:[dictionary objectForKey:@"cloudsearch"] withPath:captureUser.captureObjectPath fromDecoder:fromDecoder] : nil;
+
     captureUser.consentVerified =
         [dictionary objectForKey:@"consentVerified"] != [NSNull null] ? 
         [NSNumber numberWithBool:[(NSNumber*)[dictionary objectForKey:@"consentVerified"] boolValue]] : nil;
@@ -2656,6 +2750,10 @@
     captureUser.consumerPoints =
         [dictionary objectForKey:@"consumerPoints"] != [NSNull null] ? 
         [NSNumber numberWithInteger:[(NSNumber*)[dictionary objectForKey:@"consumerPoints"] integerValue]] : nil;
+
+    captureUser.controlField =
+        [dictionary objectForKey:@"controlField"] != [NSNull null] ? 
+        [dictionary objectForKey:@"controlField"] : nil;
 
     captureUser.coppaCommunicationSentAt =
         [dictionary objectForKey:@"coppaCommunicationSentAt"] != [NSNull null] ? 
@@ -2773,6 +2871,10 @@
         [dictionary objectForKey:@"lastLogin"] != [NSNull null] ? 
         [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"lastLogin"]] : nil;
 
+    captureUser.lastLoginMethod =
+        [dictionary objectForKey:@"lastLoginMethod"] != [NSNull null] ? 
+        [dictionary objectForKey:@"lastLoginMethod"] : nil;
+
     captureUser.lastModifiedDate =
         [dictionary objectForKey:@"lastModifiedDate"] != [NSNull null] ? 
         [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"lastModifiedDate"]] : nil;
@@ -2797,6 +2899,10 @@
         [dictionary objectForKey:@"maritalStatus"] != [NSNull null] ? 
         [dictionary objectForKey:@"maritalStatus"] : nil;
 
+    captureUser.marketingOptIn =
+        [dictionary objectForKey:@"marketingOptIn"] != [NSNull null] ? 
+        [JRMarketingOptIn marketingOptInObjectFromDictionary:[dictionary objectForKey:@"marketingOptIn"] withPath:captureUser.captureObjectPath fromDecoder:fromDecoder] : nil;
+
     captureUser.medicalProfessionalRoleSpecified =
         [dictionary objectForKey:@"medicalProfessionalRoleSpecified"] != [NSNull null] ? 
         [dictionary objectForKey:@"medicalProfessionalRoleSpecified"] : nil;
@@ -2816,6 +2922,10 @@
     captureUser.mobileNumberNeedVerification =
         [dictionary objectForKey:@"mobileNumberNeedVerification"] != [NSNull null] ? 
         [NSNumber numberWithBool:[(NSNumber*)[dictionary objectForKey:@"mobileNumberNeedVerification"] boolValue]] : nil;
+
+    captureUser.mobileNumberSmsRequestedAt =
+        [dictionary objectForKey:@"mobileNumberSmsRequestedAt"] != [NSNull null] ? 
+        [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"mobileNumberSmsRequestedAt"]] : nil;
 
     captureUser.mobileNumberVerified =
         [dictionary objectForKey:@"mobileNumberVerified"] != [NSNull null] ? 
@@ -2937,13 +3047,13 @@
         [dictionary objectForKey:@"id"] != [NSNull null] ? 
         [NSNumber numberWithInteger:[(NSNumber*)[dictionary objectForKey:@"id"] integerValue]] : nil;
 
-    captureUser.lastUpdated =
-        [dictionary objectForKey:@"lastUpdated"] != [NSNull null] ? 
-        [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"lastUpdated"]] : nil;
-
     captureUser.uuid =
         [dictionary objectForKey:@"uuid"] != [NSNull null] ? 
         [dictionary objectForKey:@"uuid"] : nil;
+
+    captureUser.lastUpdated =
+        [dictionary objectForKey:@"lastUpdated"] != [NSNull null] ? 
+        [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"lastUpdated"]] : nil;
 
     captureUser.created =
         [dictionary objectForKey:@"created"] != [NSNull null] ? 
@@ -3021,6 +3131,10 @@
         [dictionary objectForKey:@"clients"] != [NSNull null] ? 
         [(NSArray*)[dictionary objectForKey:@"clients"] arrayOfClientsElementsFromClientsDictionariesWithPath:self.captureObjectPath fromDecoder:YES] : nil;
 
+    self.cloudsearch =
+        [dictionary objectForKey:@"cloudsearch"] != [NSNull null] ? 
+        [JRCloudsearch cloudsearchObjectFromDictionary:[dictionary objectForKey:@"cloudsearch"] withPath:self.captureObjectPath fromDecoder:YES] : nil;
+
     self.consentVerified =
         [dictionary objectForKey:@"consentVerified"] != [NSNull null] ? 
         [NSNumber numberWithBool:[(NSNumber*)[dictionary objectForKey:@"consentVerified"] boolValue]] : nil;
@@ -3040,6 +3154,10 @@
     self.consumerPoints =
         [dictionary objectForKey:@"consumerPoints"] != [NSNull null] ? 
         [NSNumber numberWithInteger:[(NSNumber*)[dictionary objectForKey:@"consumerPoints"] integerValue]] : nil;
+
+    self.controlField =
+        [dictionary objectForKey:@"controlField"] != [NSNull null] ? 
+        [dictionary objectForKey:@"controlField"] : nil;
 
     self.coppaCommunicationSentAt =
         [dictionary objectForKey:@"coppaCommunicationSentAt"] != [NSNull null] ? 
@@ -3157,6 +3275,10 @@
         [dictionary objectForKey:@"lastLogin"] != [NSNull null] ? 
         [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"lastLogin"]] : nil;
 
+    self.lastLoginMethod =
+        [dictionary objectForKey:@"lastLoginMethod"] != [NSNull null] ? 
+        [dictionary objectForKey:@"lastLoginMethod"] : nil;
+
     self.lastModifiedDate =
         [dictionary objectForKey:@"lastModifiedDate"] != [NSNull null] ? 
         [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"lastModifiedDate"]] : nil;
@@ -3181,6 +3303,10 @@
         [dictionary objectForKey:@"maritalStatus"] != [NSNull null] ? 
         [dictionary objectForKey:@"maritalStatus"] : nil;
 
+    self.marketingOptIn =
+        [dictionary objectForKey:@"marketingOptIn"] != [NSNull null] ? 
+        [JRMarketingOptIn marketingOptInObjectFromDictionary:[dictionary objectForKey:@"marketingOptIn"] withPath:self.captureObjectPath fromDecoder:YES] : nil;
+
     self.medicalProfessionalRoleSpecified =
         [dictionary objectForKey:@"medicalProfessionalRoleSpecified"] != [NSNull null] ? 
         [dictionary objectForKey:@"medicalProfessionalRoleSpecified"] : nil;
@@ -3200,6 +3326,10 @@
     self.mobileNumberNeedVerification =
         [dictionary objectForKey:@"mobileNumberNeedVerification"] != [NSNull null] ? 
         [NSNumber numberWithBool:[(NSNumber*)[dictionary objectForKey:@"mobileNumberNeedVerification"] boolValue]] : nil;
+
+    self.mobileNumberSmsRequestedAt =
+        [dictionary objectForKey:@"mobileNumberSmsRequestedAt"] != [NSNull null] ? 
+        [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"mobileNumberSmsRequestedAt"]] : nil;
 
     self.mobileNumberVerified =
         [dictionary objectForKey:@"mobileNumberVerified"] != [NSNull null] ? 
@@ -3321,13 +3451,13 @@
         [dictionary objectForKey:@"id"] != [NSNull null] ? 
         [NSNumber numberWithInteger:[(NSNumber*)[dictionary objectForKey:@"id"] integerValue]] : nil;
 
-    self.lastUpdated =
-        [dictionary objectForKey:@"lastUpdated"] != [NSNull null] ? 
-        [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"lastUpdated"]] : nil;
-
     self.uuid =
         [dictionary objectForKey:@"uuid"] != [NSNull null] ? 
         [dictionary objectForKey:@"uuid"] : nil;
+
+    self.lastUpdated =
+        [dictionary objectForKey:@"lastUpdated"] != [NSNull null] ? 
+        [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"lastUpdated"]] : nil;
 
     self.created =
         [dictionary objectForKey:@"created"] != [NSNull null] ? 
@@ -3396,6 +3526,13 @@
         [dictionary objectForKey:@"clients"] != [NSNull null] ? 
         [(NSArray*)[dictionary objectForKey:@"clients"] arrayOfClientsElementsFromClientsDictionariesWithPath:self.captureObjectPath fromDecoder:NO] : nil;
 
+    if (![dictionary objectForKey:@"cloudsearch"] || [dictionary objectForKey:@"cloudsearch"] == [NSNull null])
+        self.cloudsearch = nil;
+    else if (!self.cloudsearch)
+        self.cloudsearch = [JRCloudsearch cloudsearchObjectFromDictionary:[dictionary objectForKey:@"cloudsearch"] withPath:self.captureObjectPath fromDecoder:NO];
+    else
+        [self.cloudsearch replaceFromDictionary:[dictionary objectForKey:@"cloudsearch"] withPath:self.captureObjectPath];
+
     self.consentVerified =
         [dictionary objectForKey:@"consentVerified"] != [NSNull null] ? 
         [NSNumber numberWithBool:[(NSNumber*)[dictionary objectForKey:@"consentVerified"] boolValue]] : nil;
@@ -3415,6 +3552,10 @@
     self.consumerPoints =
         [dictionary objectForKey:@"consumerPoints"] != [NSNull null] ? 
         [NSNumber numberWithInteger:[(NSNumber*)[dictionary objectForKey:@"consumerPoints"] integerValue]] : nil;
+
+    self.controlField =
+        [dictionary objectForKey:@"controlField"] != [NSNull null] ? 
+        [dictionary objectForKey:@"controlField"] : nil;
 
     self.coppaCommunicationSentAt =
         [dictionary objectForKey:@"coppaCommunicationSentAt"] != [NSNull null] ? 
@@ -3538,6 +3679,10 @@
         [dictionary objectForKey:@"lastLogin"] != [NSNull null] ? 
         [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"lastLogin"]] : nil;
 
+    self.lastLoginMethod =
+        [dictionary objectForKey:@"lastLoginMethod"] != [NSNull null] ? 
+        [dictionary objectForKey:@"lastLoginMethod"] : nil;
+
     self.lastModifiedDate =
         [dictionary objectForKey:@"lastModifiedDate"] != [NSNull null] ? 
         [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"lastModifiedDate"]] : nil;
@@ -3565,6 +3710,13 @@
         [dictionary objectForKey:@"maritalStatus"] != [NSNull null] ? 
         [dictionary objectForKey:@"maritalStatus"] : nil;
 
+    if (![dictionary objectForKey:@"marketingOptIn"] || [dictionary objectForKey:@"marketingOptIn"] == [NSNull null])
+        self.marketingOptIn = nil;
+    else if (!self.marketingOptIn)
+        self.marketingOptIn = [JRMarketingOptIn marketingOptInObjectFromDictionary:[dictionary objectForKey:@"marketingOptIn"] withPath:self.captureObjectPath fromDecoder:NO];
+    else
+        [self.marketingOptIn replaceFromDictionary:[dictionary objectForKey:@"marketingOptIn"] withPath:self.captureObjectPath];
+
     self.medicalProfessionalRoleSpecified =
         [dictionary objectForKey:@"medicalProfessionalRoleSpecified"] != [NSNull null] ? 
         [dictionary objectForKey:@"medicalProfessionalRoleSpecified"] : nil;
@@ -3587,6 +3739,10 @@
     self.mobileNumberNeedVerification =
         [dictionary objectForKey:@"mobileNumberNeedVerification"] != [NSNull null] ? 
         [NSNumber numberWithBool:[(NSNumber*)[dictionary objectForKey:@"mobileNumberNeedVerification"] boolValue]] : nil;
+
+    self.mobileNumberSmsRequestedAt =
+        [dictionary objectForKey:@"mobileNumberSmsRequestedAt"] != [NSNull null] ? 
+        [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"mobileNumberSmsRequestedAt"]] : nil;
 
     self.mobileNumberVerified =
         [dictionary objectForKey:@"mobileNumberVerified"] != [NSNull null] ? 
@@ -3714,13 +3870,13 @@
         [dictionary objectForKey:@"id"] != [NSNull null] ? 
         [NSNumber numberWithInteger:[(NSNumber*)[dictionary objectForKey:@"id"] integerValue]] : nil;
 
-    self.lastUpdated =
-        [dictionary objectForKey:@"lastUpdated"] != [NSNull null] ? 
-        [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"lastUpdated"]] : nil;
-
     self.uuid =
         [dictionary objectForKey:@"uuid"] != [NSNull null] ? 
         [dictionary objectForKey:@"uuid"] : nil;
+
+    self.lastUpdated =
+        [dictionary objectForKey:@"lastUpdated"] != [NSNull null] ? 
+        [JRDateTime dateFromISO8601DateTimeString:[dictionary objectForKey:@"lastUpdated"]] : nil;
 
     self.created =
         [dictionary objectForKey:@"created"] != [NSNull null] ? 
@@ -3731,7 +3887,7 @@
 
 - (NSSet *)updatablePropertySet
 {
-    return [NSSet setWithObjects:@"CPF", @"NRIC", @"aboutMe", @"avmTCAgreed", @"avmTermsAgreedDate", @"batchId", @"birthday", @"campaignID", @"catalogLocaleItem", @"consentVerified", @"consentVerifiedAt", @"consumerPoints", @"coppaCommunicationSentAt", @"currentLocation", @"deactivateAccount", @"deactivatedAccount", @"display", @"displayName", @"email", @"emailVerified", @"externalId", @"familyId", @"familyName", @"familyRole", @"firstNamePronunciation", @"gender", @"givenName", @"identifierInformation", @"interestAvent", @"interestCampaigns", @"interestCategories", @"interestCommunications", @"interestPromotions", @"interestStreamiumSurveys", @"interestStreamiumUpgrades", @"interestSurveys", @"interestWULsounds", @"janrain", @"lastLogin", @"lastModifiedDate", @"lastModifiedSource", @"lastNamePronunciation", @"lastUsedDevice", @"legacyID", @"maritalStatus", @"medicalProfessionalRoleSpecified", @"middleName", @"migration", @"mobileNumber", @"mobileNumberNeedVerification", @"mobileNumberVerified", @"nettvTCAgreed", @"nettvTermsAgreedDate", @"nickName", @"olderThanAgeLimit", @"optIn", @"password", @"personalDataMarketingProfiling", @"personalDataTransferAcceptance", @"personalDataUsageAcceptance", @"preferredLanguage", @"primaryAddress", @"providerMergedLast", @"receiveMarketingEmail", @"requiresVerification", @"retentionConsentGivenAt", @"salutation", @"ssn", @"streamiumServicesTCAgreed", @"termsAndConditionsAcceptance", @"weddingDate", @"wishList", @"captureUserId", @"lastUpdated", @"uuid", @"created", nil];
+    return [NSSet setWithObjects:@"CPF", @"NRIC", @"aboutMe", @"avmTCAgreed", @"avmTermsAgreedDate", @"batchId", @"birthday", @"campaignID", @"catalogLocaleItem", @"cloudsearch", @"consentVerified", @"consentVerifiedAt", @"consumerPoints", @"controlField", @"coppaCommunicationSentAt", @"currentLocation", @"deactivateAccount", @"deactivatedAccount", @"display", @"displayName", @"email", @"emailVerified", @"externalId", @"familyId", @"familyName", @"familyRole", @"firstNamePronunciation", @"gender", @"givenName", @"identifierInformation", @"interestAvent", @"interestCampaigns", @"interestCategories", @"interestCommunications", @"interestPromotions", @"interestStreamiumSurveys", @"interestStreamiumUpgrades", @"interestSurveys", @"interestWULsounds", @"janrain", @"lastLogin", @"lastLoginMethod", @"lastModifiedDate", @"lastModifiedSource", @"lastNamePronunciation", @"lastUsedDevice", @"legacyID", @"maritalStatus", @"marketingOptIn", @"medicalProfessionalRoleSpecified", @"middleName", @"migration", @"mobileNumber", @"mobileNumberNeedVerification", @"mobileNumberSmsRequestedAt", @"mobileNumberVerified", @"nettvTCAgreed", @"nettvTermsAgreedDate", @"nickName", @"olderThanAgeLimit", @"optIn", @"password", @"personalDataMarketingProfiling", @"personalDataTransferAcceptance", @"personalDataUsageAcceptance", @"preferredLanguage", @"primaryAddress", @"providerMergedLast", @"receiveMarketingEmail", @"requiresVerification", @"retentionConsentGivenAt", @"salutation", @"ssn", @"streamiumServicesTCAgreed", @"termsAndConditionsAcceptance", @"weddingDate", @"wishList", @"captureUserId", @"uuid", @"lastUpdated", @"created", nil];
 }
 
 - (void)setAllPropertiesToDirty
@@ -3747,9 +3903,33 @@
 
     [snapshotDictionary setObject:[self.dirtyPropertySet copy] forKey:@"captureUser"];
 
+    if (self.cloudsearch)
+        [snapshotDictionary setObject:[self.cloudsearch snapshotDictionaryFromDirtyPropertySet]
+                               forKey:@"cloudsearch"];
+
+    if (self.identifierInformation)
+        [snapshotDictionary setObject:[self.identifierInformation snapshotDictionaryFromDirtyPropertySet]
+                               forKey:@"identifierInformation"];
+
     if (self.janrain)
         [snapshotDictionary setObject:[self.janrain snapshotDictionaryFromDirtyPropertySet]
                                forKey:@"janrain"];
+
+    if (self.lastUsedDevice)
+        [snapshotDictionary setObject:[self.lastUsedDevice snapshotDictionaryFromDirtyPropertySet]
+                               forKey:@"lastUsedDevice"];
+
+    if (self.marketingOptIn)
+        [snapshotDictionary setObject:[self.marketingOptIn snapshotDictionaryFromDirtyPropertySet]
+                               forKey:@"marketingOptIn"];
+
+    if (self.migration)
+        [snapshotDictionary setObject:[self.migration snapshotDictionaryFromDirtyPropertySet]
+                               forKey:@"migration"];
+
+    if (self.optIn)
+        [snapshotDictionary setObject:[self.optIn snapshotDictionaryFromDirtyPropertySet]
+                               forKey:@"optIn"];
 
     if (self.primaryAddress)
         [snapshotDictionary setObject:[self.primaryAddress snapshotDictionaryFromDirtyPropertySet]
@@ -3763,10 +3943,34 @@
     if ([snapshotDictionary objectForKey:@"captureUser"])
         [self.dirtyPropertySet addObjectsFromArray:[[snapshotDictionary objectForKey:@"captureUser"] allObjects]];
 
+    if ([snapshotDictionary objectForKey:@"cloudsearch"])
+        [self.cloudsearch restoreDirtyPropertiesFromSnapshotDictionary:
+                    [snapshotDictionary objectForKey:@"cloudsearch"]];
+
+    if ([snapshotDictionary objectForKey:@"identifierInformation"])
+        [self.identifierInformation restoreDirtyPropertiesFromSnapshotDictionary:
+                    [snapshotDictionary objectForKey:@"identifierInformation"]];
+
     if ([snapshotDictionary objectForKey:@"janrain"])
         [self.janrain restoreDirtyPropertiesFromSnapshotDictionary:
-         [snapshotDictionary objectForKey:@"janrain"]];
-    
+                    [snapshotDictionary objectForKey:@"janrain"]];
+
+    if ([snapshotDictionary objectForKey:@"lastUsedDevice"])
+        [self.lastUsedDevice restoreDirtyPropertiesFromSnapshotDictionary:
+                    [snapshotDictionary objectForKey:@"lastUsedDevice"]];
+
+    if ([snapshotDictionary objectForKey:@"marketingOptIn"])
+        [self.marketingOptIn restoreDirtyPropertiesFromSnapshotDictionary:
+                    [snapshotDictionary objectForKey:@"marketingOptIn"]];
+
+    if ([snapshotDictionary objectForKey:@"migration"])
+        [self.migration restoreDirtyPropertiesFromSnapshotDictionary:
+                    [snapshotDictionary objectForKey:@"migration"]];
+
+    if ([snapshotDictionary objectForKey:@"optIn"])
+        [self.optIn restoreDirtyPropertiesFromSnapshotDictionary:
+                    [snapshotDictionary objectForKey:@"optIn"]];
+
     if ([snapshotDictionary objectForKey:@"primaryAddress"])
         [self.primaryAddress restoreDirtyPropertiesFromSnapshotDictionary:
                     [snapshotDictionary objectForKey:@"primaryAddress"]];
@@ -3805,6 +4009,15 @@
     if ([self.dirtyPropertySet containsObject:@"catalogLocaleItem"])
         [dictionary setObject:(self.catalogLocaleItem ? self.catalogLocaleItem : [NSNull null]) forKey:@"catalogLocaleItem"];
 
+//    if ([self.dirtyPropertySet containsObject:@"cloudsearch"])
+//        [dictionary setObject:(self.cloudsearch ?
+//                              [self.cloudsearch toUpdateDictionary] :
+//                              [[JRCloudsearch cloudsearch] toUpdateDictionary]) /* Use the default constructor to create an empty object */
+//                       forKey:@"cloudsearch"];
+//    else if ([self.cloudsearch needsUpdate])
+//        [dictionary setObject:[self.cloudsearch toUpdateDictionary]
+//                       forKey:@"cloudsearch"];
+
     if ([self.dirtyPropertySet containsObject:@"consentVerified"])
         [dictionary setObject:(self.consentVerified ? [NSNumber numberWithBool:[self.consentVerified boolValue]] : [NSNull null]) forKey:@"consentVerified"];
 
@@ -3813,6 +4026,9 @@
 
     if ([self.dirtyPropertySet containsObject:@"consumerPoints"])
         [dictionary setObject:(self.consumerPoints ? [NSNumber numberWithInteger:[self.consumerPoints integerValue]] : [NSNull null]) forKey:@"consumerPoints"];
+
+    if ([self.dirtyPropertySet containsObject:@"controlField"])
+        [dictionary setObject:(self.controlField ? self.controlField : [NSNull null]) forKey:@"controlField"];
 
     if ([self.dirtyPropertySet containsObject:@"coppaCommunicationSentAt"])
         [dictionary setObject:(self.coppaCommunicationSentAt ? [self.coppaCommunicationSentAt stringFromISO8601DateTime] : [NSNull null]) forKey:@"coppaCommunicationSentAt"];
@@ -3859,6 +4075,15 @@
     if ([self.dirtyPropertySet containsObject:@"givenName"])
         [dictionary setObject:(self.givenName ? self.givenName : [NSNull null]) forKey:@"givenName"];
 
+    if ([self.dirtyPropertySet containsObject:@"identifierInformation"])
+        [dictionary setObject:(self.identifierInformation ?
+                              [self.identifierInformation toUpdateDictionary] :
+                              [[JRIdentifierInformation identifierInformation] toUpdateDictionary]) /* Use the default constructor to create an empty object */
+                       forKey:@"identifierInformation"];
+    else if ([self.identifierInformation needsUpdate])
+        [dictionary setObject:[self.identifierInformation toUpdateDictionary]
+                       forKey:@"identifierInformation"];
+
     if ([self.dirtyPropertySet containsObject:@"interestAvent"])
         [dictionary setObject:(self.interestAvent ? [NSNumber numberWithBool:[self.interestAvent boolValue]] : [NSNull null]) forKey:@"interestAvent"];
 
@@ -3898,6 +4123,9 @@
     if ([self.dirtyPropertySet containsObject:@"lastLogin"])
         [dictionary setObject:(self.lastLogin ? [self.lastLogin stringFromISO8601DateTime] : [NSNull null]) forKey:@"lastLogin"];
 
+    if ([self.dirtyPropertySet containsObject:@"lastLoginMethod"])
+        [dictionary setObject:(self.lastLoginMethod ? self.lastLoginMethod : [NSNull null]) forKey:@"lastLoginMethod"];
+
     if ([self.dirtyPropertySet containsObject:@"lastModifiedDate"])
         [dictionary setObject:(self.lastModifiedDate ? [self.lastModifiedDate stringFromISO8601DateTime] : [NSNull null]) forKey:@"lastModifiedDate"];
 
@@ -3907,11 +4135,29 @@
     if ([self.dirtyPropertySet containsObject:@"lastNamePronunciation"])
         [dictionary setObject:(self.lastNamePronunciation ? self.lastNamePronunciation : [NSNull null]) forKey:@"lastNamePronunciation"];
 
+    if ([self.dirtyPropertySet containsObject:@"lastUsedDevice"])
+        [dictionary setObject:(self.lastUsedDevice ?
+                              [self.lastUsedDevice toUpdateDictionary] :
+                              [[JRLastUsedDevice lastUsedDevice] toUpdateDictionary]) /* Use the default constructor to create an empty object */
+                       forKey:@"lastUsedDevice"];
+    else if ([self.lastUsedDevice needsUpdate])
+        [dictionary setObject:[self.lastUsedDevice toUpdateDictionary]
+                       forKey:@"lastUsedDevice"];
+
     if ([self.dirtyPropertySet containsObject:@"legacyID"])
         [dictionary setObject:(self.legacyID ? [NSNumber numberWithInteger:[self.legacyID integerValue]] : [NSNull null]) forKey:@"legacyID"];
 
     if ([self.dirtyPropertySet containsObject:@"maritalStatus"])
         [dictionary setObject:(self.maritalStatus ? self.maritalStatus : [NSNull null]) forKey:@"maritalStatus"];
+
+    if ([self.dirtyPropertySet containsObject:@"marketingOptIn"])
+        [dictionary setObject:(self.marketingOptIn ?
+                              [self.marketingOptIn toUpdateDictionary] :
+                              [[JRMarketingOptIn marketingOptIn] toUpdateDictionary]) /* Use the default constructor to create an empty object */
+                       forKey:@"marketingOptIn"];
+    else if ([self.marketingOptIn needsUpdate])
+        [dictionary setObject:[self.marketingOptIn toUpdateDictionary]
+                       forKey:@"marketingOptIn"];
 
     if ([self.dirtyPropertySet containsObject:@"medicalProfessionalRoleSpecified"])
         [dictionary setObject:(self.medicalProfessionalRoleSpecified ? self.medicalProfessionalRoleSpecified : [NSNull null]) forKey:@"medicalProfessionalRoleSpecified"];
@@ -3919,11 +4165,23 @@
     if ([self.dirtyPropertySet containsObject:@"middleName"])
         [dictionary setObject:(self.middleName ? self.middleName : [NSNull null]) forKey:@"middleName"];
 
+//    if ([self.dirtyPropertySet containsObject:@"migration"])
+//        [dictionary setObject:(self.migration ?
+//                              [self.migration toUpdateDictionary] :
+//                              [[JRMigration migration] toUpdateDictionary]) /* Use the default constructor to create an empty object */
+//                       forKey:@"migration"];
+//    else if ([self.migration needsUpdate])
+//        [dictionary setObject:[self.migration toUpdateDictionary]
+//                       forKey:@"migration"];
+
     if ([self.dirtyPropertySet containsObject:@"mobileNumber"])
         [dictionary setObject:(self.mobileNumber ? self.mobileNumber : [NSNull null]) forKey:@"mobileNumber"];
 
     if ([self.dirtyPropertySet containsObject:@"mobileNumberNeedVerification"])
         [dictionary setObject:(self.mobileNumberNeedVerification ? [NSNumber numberWithBool:[self.mobileNumberNeedVerification boolValue]] : [NSNull null]) forKey:@"mobileNumberNeedVerification"];
+
+    if ([self.dirtyPropertySet containsObject:@"mobileNumberSmsRequestedAt"])
+        [dictionary setObject:(self.mobileNumberSmsRequestedAt ? [self.mobileNumberSmsRequestedAt stringFromISO8601DateTime] : [NSNull null]) forKey:@"mobileNumberSmsRequestedAt"];
 
     if ([self.dirtyPropertySet containsObject:@"mobileNumberVerified"])
         [dictionary setObject:(self.mobileNumberVerified ? [self.mobileNumberVerified stringFromISO8601DateTime] : [NSNull null]) forKey:@"mobileNumberVerified"];
@@ -3940,8 +4198,17 @@
     if ([self.dirtyPropertySet containsObject:@"olderThanAgeLimit"])
         [dictionary setObject:(self.olderThanAgeLimit ? [NSNumber numberWithBool:[self.olderThanAgeLimit boolValue]] : [NSNull null]) forKey:@"olderThanAgeLimit"];
 
-    if ([self.dirtyPropertySet containsObject:@"password"])
-        [dictionary setObject:(self.password ? self.password : [NSNull null]) forKey:@"password"];
+    if ([self.dirtyPropertySet containsObject:@"optIn"])
+        [dictionary setObject:(self.optIn ?
+                              [self.optIn toUpdateDictionary] :
+                              [[JROptIn optIn] toUpdateDictionary]) /* Use the default constructor to create an empty object */
+                       forKey:@"optIn"];
+    else if ([self.optIn needsUpdate])
+        [dictionary setObject:[self.optIn toUpdateDictionary]
+                       forKey:@"optIn"];
+
+//    if ([self.dirtyPropertySet containsObject:@"password"])
+//        [dictionary setObject:(self.password ? self.password : [NSNull null]) forKey:@"password"];
 
     if ([self.dirtyPropertySet containsObject:@"personalDataMarketingProfiling"])
         [dictionary setObject:(self.personalDataMarketingProfiling ? [self.personalDataMarketingProfiling stringFromISO8601DateTime] : [NSNull null]) forKey:@"personalDataMarketingProfiling"];
@@ -4037,6 +4304,11 @@
                           [self.clients arrayOfClientsReplaceDictionariesFromClientsElements] :
                           [NSArray array])
                    forKey:@"clients"];
+
+    [dictionary setObject:(self.cloudsearch ?
+                          [self.cloudsearch toReplaceDictionary] :
+                          [[JRCloudsearch cloudsearch] toUpdateDictionary]) /* Use the default constructor to create an empty object */
+                   forKey:@"cloudsearch"];
     [dictionary setObject:(self.consentVerified ? [NSNumber numberWithBool:[self.consentVerified boolValue]] : [NSNull null]) forKey:@"consentVerified"];
     [dictionary setObject:(self.consentVerifiedAt ? [self.consentVerifiedAt stringFromISO8601DateTime] : [NSNull null]) forKey:@"consentVerifiedAt"];
 
@@ -4050,6 +4322,7 @@
                           [NSArray array])
                    forKey:@"consumerInterests"];
     [dictionary setObject:(self.consumerPoints ? [NSNumber numberWithInteger:[self.consumerPoints integerValue]] : [NSNull null]) forKey:@"consumerPoints"];
+    [dictionary setObject:(self.controlField ? self.controlField : [NSNull null]) forKey:@"controlField"];
     [dictionary setObject:(self.coppaCommunicationSentAt ? [self.coppaCommunicationSentAt stringFromISO8601DateTime] : [NSNull null]) forKey:@"coppaCommunicationSentAt"];
     [dictionary setObject:(self.currentLocation ? self.currentLocation : [NSNull null]) forKey:@"currentLocation"];
     [dictionary setObject:(self.deactivateAccount ? [self.deactivateAccount stringFromISO8601DateTime] : [NSNull null]) forKey:@"deactivateAccount"];
@@ -4095,6 +4368,7 @@
                           [[JRJanrain janrain] toUpdateDictionary]) /* Use the default constructor to create an empty object */
                    forKey:@"janrain"];
     [dictionary setObject:(self.lastLogin ? [self.lastLogin stringFromISO8601DateTime] : [NSNull null]) forKey:@"lastLogin"];
+    [dictionary setObject:(self.lastLoginMethod ? self.lastLoginMethod : [NSNull null]) forKey:@"lastLoginMethod"];
     [dictionary setObject:(self.lastModifiedDate ? [self.lastModifiedDate stringFromISO8601DateTime] : [NSNull null]) forKey:@"lastModifiedDate"];
     [dictionary setObject:(self.lastModifiedSource ? self.lastModifiedSource : [NSNull null]) forKey:@"lastModifiedSource"];
     [dictionary setObject:(self.lastNamePronunciation ? self.lastNamePronunciation : [NSNull null]) forKey:@"lastNamePronunciation"];
@@ -4105,6 +4379,11 @@
                    forKey:@"lastUsedDevice"];
     [dictionary setObject:(self.legacyID ? [NSNumber numberWithInteger:[self.legacyID integerValue]] : [NSNull null]) forKey:@"legacyID"];
     [dictionary setObject:(self.maritalStatus ? self.maritalStatus : [NSNull null]) forKey:@"maritalStatus"];
+
+    [dictionary setObject:(self.marketingOptIn ?
+                          [self.marketingOptIn toReplaceDictionary] :
+                          [[JRMarketingOptIn marketingOptIn] toUpdateDictionary]) /* Use the default constructor to create an empty object */
+                   forKey:@"marketingOptIn"];
     [dictionary setObject:(self.medicalProfessionalRoleSpecified ? self.medicalProfessionalRoleSpecified : [NSNull null]) forKey:@"medicalProfessionalRoleSpecified"];
     [dictionary setObject:(self.middleName ? self.middleName : [NSNull null]) forKey:@"middleName"];
 
@@ -4114,6 +4393,7 @@
                    forKey:@"migration"];
     [dictionary setObject:(self.mobileNumber ? self.mobileNumber : [NSNull null]) forKey:@"mobileNumber"];
     [dictionary setObject:(self.mobileNumberNeedVerification ? [NSNumber numberWithBool:[self.mobileNumberNeedVerification boolValue]] : [NSNull null]) forKey:@"mobileNumberNeedVerification"];
+    [dictionary setObject:(self.mobileNumberSmsRequestedAt ? [self.mobileNumberSmsRequestedAt stringFromISO8601DateTime] : [NSNull null]) forKey:@"mobileNumberSmsRequestedAt"];
     [dictionary setObject:(self.mobileNumberVerified ? [self.mobileNumberVerified stringFromISO8601DateTime] : [NSNull null]) forKey:@"mobileNumberVerified"];
     [dictionary setObject:(self.nettvTCAgreed ? [NSNumber numberWithBool:[self.nettvTCAgreed boolValue]] : [NSNull null]) forKey:@"nettvTCAgreed"];
     [dictionary setObject:(self.nettvTermsAgreedDate ? [self.nettvTermsAgreedDate stringFromISO8601DateTime] : [NSNull null]) forKey:@"nettvTermsAgreedDate"];
@@ -4279,6 +4559,9 @@
     if ([self.dirtyPropertySet count])
          return YES;
 
+    if ([self.cloudsearch needsUpdate])
+        return YES;
+
     if ([self.identifierInformation needsUpdate])
         return YES;
 
@@ -4286,6 +4569,9 @@
         return YES;
 
     if ([self.lastUsedDevice needsUpdate])
+        return YES;
+
+    if ([self.marketingOptIn needsUpdate])
         return YES;
 
     if ([self.migration needsUpdate])
@@ -4358,6 +4644,11 @@
     else if (!otherCaptureUser.clients && ![self.clients count]) /* Keep going... */;
     else if (![self.clients isEqualToClientsArray:otherCaptureUser.clients]) return NO;
 
+    if (!self.cloudsearch && !otherCaptureUser.cloudsearch) /* Keep going... */;
+    else if (!self.cloudsearch && [otherCaptureUser.cloudsearch isEqualToCloudsearch:[JRCloudsearch cloudsearch]]) /* Keep going... */;
+    else if (!otherCaptureUser.cloudsearch && [self.cloudsearch isEqualToCloudsearch:[JRCloudsearch cloudsearch]]) /* Keep going... */;
+    else if (![self.cloudsearch isEqualToCloudsearch:otherCaptureUser.cloudsearch]) return NO;
+
     if (!self.consentVerified && !otherCaptureUser.consentVerified) /* Keep going... */;
     else if ((self.consentVerified == nil) ^ (otherCaptureUser.consentVerified == nil)) return NO; // xor
     else if (![self.consentVerified isEqualToNumber:otherCaptureUser.consentVerified]) return NO;
@@ -4379,6 +4670,10 @@
     if (!self.consumerPoints && !otherCaptureUser.consumerPoints) /* Keep going... */;
     else if ((self.consumerPoints == nil) ^ (otherCaptureUser.consumerPoints == nil)) return NO; // xor
     else if (![self.consumerPoints isEqualToNumber:otherCaptureUser.consumerPoints]) return NO;
+
+    if (!self.controlField && !otherCaptureUser.controlField) /* Keep going... */;
+    else if ((self.controlField == nil) ^ (otherCaptureUser.controlField == nil)) return NO; // xor
+    else if (![self.controlField isEqualToString:otherCaptureUser.controlField]) return NO;
 
     if (!self.coppaCommunicationSentAt && !otherCaptureUser.coppaCommunicationSentAt) /* Keep going... */;
     else if ((self.coppaCommunicationSentAt == nil) ^ (otherCaptureUser.coppaCommunicationSentAt == nil)) return NO; // xor
@@ -4500,6 +4795,10 @@
     else if ((self.lastLogin == nil) ^ (otherCaptureUser.lastLogin == nil)) return NO; // xor
     else if (![self.lastLogin isEqualToDate:otherCaptureUser.lastLogin]) return NO;
 
+    if (!self.lastLoginMethod && !otherCaptureUser.lastLoginMethod) /* Keep going... */;
+    else if ((self.lastLoginMethod == nil) ^ (otherCaptureUser.lastLoginMethod == nil)) return NO; // xor
+    else if (![self.lastLoginMethod isEqualToString:otherCaptureUser.lastLoginMethod]) return NO;
+
     if (!self.lastModifiedDate && !otherCaptureUser.lastModifiedDate) /* Keep going... */;
     else if ((self.lastModifiedDate == nil) ^ (otherCaptureUser.lastModifiedDate == nil)) return NO; // xor
     else if (![self.lastModifiedDate isEqualToDate:otherCaptureUser.lastModifiedDate]) return NO;
@@ -4525,6 +4824,11 @@
     else if ((self.maritalStatus == nil) ^ (otherCaptureUser.maritalStatus == nil)) return NO; // xor
     else if (![self.maritalStatus isEqualToString:otherCaptureUser.maritalStatus]) return NO;
 
+    if (!self.marketingOptIn && !otherCaptureUser.marketingOptIn) /* Keep going... */;
+    else if (!self.marketingOptIn && [otherCaptureUser.marketingOptIn isEqualToMarketingOptIn:[JRMarketingOptIn marketingOptIn]]) /* Keep going... */;
+    else if (!otherCaptureUser.marketingOptIn && [self.marketingOptIn isEqualToMarketingOptIn:[JRMarketingOptIn marketingOptIn]]) /* Keep going... */;
+    else if (![self.marketingOptIn isEqualToMarketingOptIn:otherCaptureUser.marketingOptIn]) return NO;
+
     if (!self.medicalProfessionalRoleSpecified && !otherCaptureUser.medicalProfessionalRoleSpecified) /* Keep going... */;
     else if ((self.medicalProfessionalRoleSpecified == nil) ^ (otherCaptureUser.medicalProfessionalRoleSpecified == nil)) return NO; // xor
     else if (![self.medicalProfessionalRoleSpecified isEqualToString:otherCaptureUser.medicalProfessionalRoleSpecified]) return NO;
@@ -4545,6 +4849,10 @@
     if (!self.mobileNumberNeedVerification && !otherCaptureUser.mobileNumberNeedVerification) /* Keep going... */;
     else if ((self.mobileNumberNeedVerification == nil) ^ (otherCaptureUser.mobileNumberNeedVerification == nil)) return NO; // xor
     else if (![self.mobileNumberNeedVerification isEqualToNumber:otherCaptureUser.mobileNumberNeedVerification]) return NO;
+
+    if (!self.mobileNumberSmsRequestedAt && !otherCaptureUser.mobileNumberSmsRequestedAt) /* Keep going... */;
+    else if ((self.mobileNumberSmsRequestedAt == nil) ^ (otherCaptureUser.mobileNumberSmsRequestedAt == nil)) return NO; // xor
+    else if (![self.mobileNumberSmsRequestedAt isEqualToDate:otherCaptureUser.mobileNumberSmsRequestedAt]) return NO;
 
     if (!self.mobileNumberVerified && !otherCaptureUser.mobileNumberVerified) /* Keep going... */;
     else if ((self.mobileNumberVerified == nil) ^ (otherCaptureUser.mobileNumberVerified == nil)) return NO; // xor
@@ -4692,11 +5000,13 @@
     [dictionary setObject:@"NSString" forKey:@"catalogLocaleItem"];
     [dictionary setObject:@"NSArray" forKey:@"children"];
     [dictionary setObject:@"NSArray" forKey:@"clients"];
+    [dictionary setObject:@"JRCloudsearch" forKey:@"cloudsearch"];
     [dictionary setObject:@"JRBoolean" forKey:@"consentVerified"];
     [dictionary setObject:@"JRDateTime" forKey:@"consentVerifiedAt"];
     [dictionary setObject:@"NSArray" forKey:@"consents"];
     [dictionary setObject:@"NSArray" forKey:@"consumerInterests"];
     [dictionary setObject:@"JRInteger" forKey:@"consumerPoints"];
+    [dictionary setObject:@"NSString" forKey:@"controlField"];
     [dictionary setObject:@"JRDateTime" forKey:@"coppaCommunicationSentAt"];
     [dictionary setObject:@"NSString" forKey:@"currentLocation"];
     [dictionary setObject:@"JRDateTime" forKey:@"deactivateAccount"];
@@ -4726,17 +5036,20 @@
     [dictionary setObject:@"JRBoolean" forKey:@"interestWULsounds"];
     [dictionary setObject:@"JRJanrain" forKey:@"janrain"];
     [dictionary setObject:@"JRDateTime" forKey:@"lastLogin"];
+    [dictionary setObject:@"NSString" forKey:@"lastLoginMethod"];
     [dictionary setObject:@"JRDateTime" forKey:@"lastModifiedDate"];
     [dictionary setObject:@"NSString" forKey:@"lastModifiedSource"];
     [dictionary setObject:@"NSString" forKey:@"lastNamePronunciation"];
     [dictionary setObject:@"JRLastUsedDevice" forKey:@"lastUsedDevice"];
     [dictionary setObject:@"JRInteger" forKey:@"legacyID"];
     [dictionary setObject:@"NSString" forKey:@"maritalStatus"];
+    [dictionary setObject:@"JRMarketingOptIn" forKey:@"marketingOptIn"];
     [dictionary setObject:@"NSString" forKey:@"medicalProfessionalRoleSpecified"];
     [dictionary setObject:@"NSString" forKey:@"middleName"];
     [dictionary setObject:@"JRMigration" forKey:@"migration"];
     [dictionary setObject:@"NSString" forKey:@"mobileNumber"];
     [dictionary setObject:@"JRBoolean" forKey:@"mobileNumberNeedVerification"];
+    [dictionary setObject:@"JRDateTime" forKey:@"mobileNumberSmsRequestedAt"];
     [dictionary setObject:@"JRDateTime" forKey:@"mobileNumberVerified"];
     [dictionary setObject:@"JRBoolean" forKey:@"nettvTCAgreed"];
     [dictionary setObject:@"JRDateTime" forKey:@"nettvTermsAgreedDate"];
@@ -4767,8 +5080,8 @@
     [dictionary setObject:@"JRDateTime" forKey:@"weddingDate"];
     [dictionary setObject:@"NSString" forKey:@"wishList"];
     [dictionary setObject:@"JRObjectId" forKey:@"captureUserId"];
-    [dictionary setObject:@"JRDateTime" forKey:@"lastUpdated"];
     [dictionary setObject:@"JRUuid" forKey:@"uuid"];
+    [dictionary setObject:@"JRDateTime" forKey:@"lastUpdated"];
     [dictionary setObject:@"JRDateTime" forKey:@"created"];
 
     return [NSDictionary dictionaryWithDictionary:dictionary];

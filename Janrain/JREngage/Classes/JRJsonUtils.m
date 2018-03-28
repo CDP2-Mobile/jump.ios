@@ -36,7 +36,7 @@
 {
     NSError *jsonErr = nil;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&jsonErr];
-    if (jsonErr) ALog("WARNING, JSON serialization error: %@", jsonErr);
+    if (jsonErr) ALog(@"WARNING, JSON serialization error: %@", jsonErr);
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     return jsonString;
 }
@@ -51,7 +51,7 @@
 {
     NSError *jsonErr = nil;
     id jsonObject = [NSJSONSerialization JSONObjectWithData:jsonData options:(NSJSONReadingOptions) 0 error:&jsonErr];
-    if (jsonErr) ALog("WARNING, JSON parse error: %@", jsonErr);
+    if (jsonErr) ALog(@"WARNING, JSON parse error: %@", jsonErr);
     return jsonObject;
 }
 @end

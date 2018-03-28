@@ -39,6 +39,7 @@
 #import "JROpenIDAppAuth.h"
 #import "JRNativeAuth.h"
 #import "JRNativeAuthConfig.h"
+#import "AppAuth.h"
 
 
 @interface JREngage () <JRSessionDelegate, JRNativeAuthConfig, JROpenIDAppAuthGoogleDelegate>
@@ -51,9 +52,9 @@
 
 /** \internal Array of JREngageDelegate objects */
 @property (nonatomic) NSMutableArray         *delegates;
-
 @property (nonatomic) NSString *weChatAppId;
 @property (nonatomic) NSString *weChatSecretKey;
+
 
 @end
 
@@ -84,7 +85,6 @@ static JREngage* singleton = nil;
     return singleton;
 }
 
-
 -(void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
@@ -101,9 +101,10 @@ static JREngage* singleton = nil;
     
     if (!delegates)
         self.delegates = [NSMutableArray arrayWithObjects:delegate, nil];
-    else
+    else {
         if (![delegates containsObject:delegate])
             [delegates addObject:delegate];
+    }
     
     if (!sessionData)
         self.sessionData = [JRSessionData jrSessionDataWithAppId:appId appUrl:appUrl tokenUrl:tokenUrl andDelegate:self];

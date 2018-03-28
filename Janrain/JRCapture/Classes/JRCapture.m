@@ -893,7 +893,6 @@ captureRegistrationFormName:(NSString *)captureRegistrationFormName
         @"form" : ObjectOrNull(editProfileForm),
         @"flow" : ObjectOrNull(data.captureFlowName),
     }];
-   
 
     if ([data downloadedFlowVersion]) {
         [params setObject:[data downloadedFlowVersion] forKey:@"flow_version"];
@@ -932,6 +931,7 @@ captureRegistrationFormName:(NSString *)captureRegistrationFormName
                                        @"locale" : ObjectOrNull(data.captureLocale),
                                        @"form" : ObjectOrNull(formName),
                                        @"flow" : ObjectOrNull(data.captureFlowName),
+                                       @"redirect_uri": ObjectOrNull(data.captureRedirectUri)
                                        }];
     
     if ([data downloadedFlowVersion]) {

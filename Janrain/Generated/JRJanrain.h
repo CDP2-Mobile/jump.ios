@@ -32,7 +32,7 @@
 #import "JRCaptureObject.h"
 #import "JRCaptureTypes.h"
 #import "JRNSDate+ISO8601_CaptureDateTimeString.h"
-#import "JRCloudsearch.h"
+#import "JRJanrainCloudsearch.h"
 #import "JRControlFields.h"
 #import "JRProperties.h"
 
@@ -40,7 +40,8 @@
  * @brief A JRJanrain object
  **/
 @interface JRJanrain : JRCaptureObject
-@property (nonatomic,strong)    JRCloudsearch *cloudsearch; /**< The object's \e cloudsearch property */ 
+@property (nonatomic,strong)    JRJanrainCloudsearch *janrainCloudsearch; /**< The object's \e cloudsearch property */ 
+@property (nonatomic, copy)     NSString *controlField; /**< The object's \e controlField property */ 
 @property (nonatomic,strong)    JRControlFields *controlFields; /**< The object's \e controlFields property */ 
 @property (nonatomic,strong)    JRProperties *properties; /**< The object's \e properties property */ 
 
@@ -83,7 +84,7 @@
  *
  * @note
  * This method recursively checks all of the sub-objects of JRJanrain:
- *   - JRJanrain#cloudsearch
+ *   - JRJanrain#janrainCloudsearch
  *   - JRJanrain#controlFields
  *   - JRJanrain#properties
  * .

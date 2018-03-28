@@ -84,7 +84,6 @@
 #import <Foundation/Foundation.h>
 #import "JRNativeProvider.h"
 #import "JROpenIDAppAuthProvider.h"
-
 @class JRActivityObject;
 
 /**

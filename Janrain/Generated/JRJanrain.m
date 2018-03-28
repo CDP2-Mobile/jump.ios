@@ -34,9 +34,9 @@
 #import "JRJanrain.h"
 #import "debug_log.h"
 
-@interface JRCloudsearch (JRCloudsearch_InternalMethods)
-+ (id)cloudsearchObjectFromDictionary:(NSDictionary*)dictionary withPath:(NSString *)capturePath fromDecoder:(BOOL)fromDecoder;
-- (BOOL)isEqualToCloudsearch:(JRCloudsearch *)otherCloudsearch;
+@interface JRJanrainCloudsearch (JRJanrainCloudsearch_InternalMethods)
++ (id)janrainCloudsearchObjectFromDictionary:(NSDictionary*)dictionary withPath:(NSString *)capturePath fromDecoder:(BOOL)fromDecoder;
+- (BOOL)isEqualToJanrainCloudsearch:(JRJanrainCloudsearch *)otherJanrainCloudsearch;
 @end
 
 @interface JRControlFields (JRControlFields_InternalMethods)
@@ -55,24 +55,37 @@
 
 @implementation JRJanrain
 {
-    JRCloudsearch *_cloudsearch;
+    JRJanrainCloudsearch *_janrainCloudsearch;
+    NSString *_controlField;
     JRControlFields *_controlFields;
     JRProperties *_properties;
 }
 @synthesize canBeUpdatedOnCapture;
 
-- (JRCloudsearch *)cloudsearch
+- (JRJanrainCloudsearch *)janrainCloudsearch
 {
-    return _cloudsearch;
+    return _janrainCloudsearch;
 }
 
-- (void)setCloudsearch:(JRCloudsearch *)newCloudsearch
+- (void)setJanrainCloudsearch:(JRJanrainCloudsearch *)newJanrainCloudsearch
 {
-    [self.dirtyPropertySet addObject:@"cloudsearch"];
+    [self.dirtyPropertySet addObject:@"janrainCloudsearch"];
 
-    _cloudsearch = newCloudsearch;
+    _janrainCloudsearch = newJanrainCloudsearch;
 
-    [_cloudsearch setAllPropertiesToDirty];
+    [_janrainCloudsearch setAllPropertiesToDirty];
+}
+
+- (NSString *)controlField
+{
+    return _controlField;
+}
+
+- (void)setControlField:(NSString *)newControlField
+{
+    [self.dirtyPropertySet addObject:@"controlField"];
+
+    _controlField = [newControlField copy];
 }
 
 - (JRControlFields *)controlFields
@@ -110,7 +123,7 @@
         self.captureObjectPath = @"/janrain";
         self.canBeUpdatedOnCapture = YES;
 
-        _cloudsearch = [[JRCloudsearch alloc] init];
+        _janrainCloudsearch = [[JRJanrainCloudsearch alloc] init];
         _controlFields = [[JRControlFields alloc] init];
         _properties = [[JRProperties alloc] init];
 
@@ -129,8 +142,10 @@
     NSMutableDictionary *dictionary =
         [NSMutableDictionary dictionaryWithCapacity:10];
 
-    [dictionary setObject:(self.cloudsearch ? [self.cloudsearch newDictionaryForEncoder:forEncoder] : [NSNull null])
+    [dictionary setObject:(self.janrainCloudsearch ? [self.janrainCloudsearch newDictionaryForEncoder:forEncoder] : [NSNull null])
                    forKey:@"cloudsearch"];
+    [dictionary setObject:(self.controlField ? self.controlField : [NSNull null])
+                   forKey:@"controlField"];
     [dictionary setObject:(self.controlFields ? [self.controlFields newDictionaryForEncoder:forEncoder] : [NSNull null])
                    forKey:@"controlFields"];
     [dictionary setObject:(self.properties ? [self.properties newDictionaryForEncoder:forEncoder] : [NSNull null])
@@ -164,9 +179,13 @@
                                                               nil : [dictionary objectForKey:@"captureObjectPath"]);
     }
 
-    janrain.cloudsearch =
+    janrain.janrainCloudsearch =
         [dictionary objectForKey:@"cloudsearch"] != [NSNull null] ? 
-        [JRCloudsearch cloudsearchObjectFromDictionary:[dictionary objectForKey:@"cloudsearch"] withPath:janrain.captureObjectPath fromDecoder:fromDecoder] : nil;
+        [JRJanrainCloudsearch janrainCloudsearchObjectFromDictionary:[dictionary objectForKey:@"cloudsearch"] withPath:janrain.captureObjectPath fromDecoder:fromDecoder] : nil;
+
+    janrain.controlField =
+        [dictionary objectForKey:@"controlField"] != [NSNull null] ? 
+        [dictionary objectForKey:@"controlField"] : nil;
 
     janrain.controlFields =
         [dictionary objectForKey:@"controlFields"] != [NSNull null] ? 
@@ -198,11 +217,15 @@
     self.canBeUpdatedOnCapture = YES;
 
     if (![dictionary objectForKey:@"cloudsearch"] || [dictionary objectForKey:@"cloudsearch"] == [NSNull null])
-        self.cloudsearch = nil;
-    else if (!self.cloudsearch)
-        self.cloudsearch = [JRCloudsearch cloudsearchObjectFromDictionary:[dictionary objectForKey:@"cloudsearch"] withPath:self.captureObjectPath fromDecoder:NO];
+        self.janrainCloudsearch = nil;
+    else if (!self.janrainCloudsearch)
+        self.janrainCloudsearch = [JRJanrainCloudsearch janrainCloudsearchObjectFromDictionary:[dictionary objectForKey:@"cloudsearch"] withPath:self.captureObjectPath fromDecoder:NO];
     else
-        [self.cloudsearch replaceFromDictionary:[dictionary objectForKey:@"cloudsearch"] withPath:self.captureObjectPath];
+        [self.janrainCloudsearch replaceFromDictionary:[dictionary objectForKey:@"cloudsearch"] withPath:self.captureObjectPath];
+
+    self.controlField =
+        [dictionary objectForKey:@"controlField"] != [NSNull null] ? 
+        [dictionary objectForKey:@"controlField"] : nil;
 
     if (![dictionary objectForKey:@"controlFields"] || [dictionary objectForKey:@"controlFields"] == [NSNull null])
         self.controlFields = nil;
@@ -223,7 +246,7 @@
 
 - (NSSet *)updatablePropertySet
 {
-    return [NSSet setWithObjects:@"cloudsearch", @"controlFields", @"properties", nil];
+    return [NSSet setWithObjects:@"janrainCloudsearch", @"controlField", @"controlFields", @"properties", nil];
 }
 
 - (void)setAllPropertiesToDirty
@@ -239,9 +262,9 @@
 
     [snapshotDictionary setObject:[self.dirtyPropertySet copy] forKey:@"janrain"];
 
-    if (self.cloudsearch)
-        [snapshotDictionary setObject:[self.cloudsearch snapshotDictionaryFromDirtyPropertySet]
-                               forKey:@"cloudsearch"];
+    if (self.janrainCloudsearch)
+        [snapshotDictionary setObject:[self.janrainCloudsearch snapshotDictionaryFromDirtyPropertySet]
+                               forKey:@"janrainCloudsearch"];
 
     if (self.controlFields)
         [snapshotDictionary setObject:[self.controlFields snapshotDictionaryFromDirtyPropertySet]
@@ -259,9 +282,9 @@
     if ([snapshotDictionary objectForKey:@"janrain"])
         [self.dirtyPropertySet addObjectsFromArray:[[snapshotDictionary objectForKey:@"janrain"] allObjects]];
 
-    if ([snapshotDictionary objectForKey:@"cloudsearch"])
-        [self.cloudsearch restoreDirtyPropertiesFromSnapshotDictionary:
-                    [snapshotDictionary objectForKey:@"cloudsearch"]];
+    if ([snapshotDictionary objectForKey:@"janrainCloudsearch"])
+        [self.janrainCloudsearch restoreDirtyPropertiesFromSnapshotDictionary:
+                    [snapshotDictionary objectForKey:@"janrainCloudsearch"]];
 
     if ([snapshotDictionary objectForKey:@"controlFields"])
         [self.controlFields restoreDirtyPropertiesFromSnapshotDictionary:
@@ -278,14 +301,17 @@
     NSMutableDictionary *dictionary =
          [NSMutableDictionary dictionaryWithCapacity:10];
 
-//    if ([self.dirtyPropertySet containsObject:@"cloudsearch"])
-//        [dictionary setObject:(self.cloudsearch ?
-//                              [self.cloudsearch toUpdateDictionary] :
-//                              [[JRCloudsearch cloudsearch] toUpdateDictionary]) /* Use the default constructor to create an empty object */
-//                       forKey:@"cloudsearch"];
-//    else if ([self.cloudsearch needsUpdate])
-//        [dictionary setObject:[self.cloudsearch toUpdateDictionary]
-//                       forKey:@"cloudsearch"];
+    if ([self.dirtyPropertySet containsObject:@"janrainCloudsearch"])
+        [dictionary setObject:(self.janrainCloudsearch ?
+                              [self.janrainCloudsearch toUpdateDictionary] :
+                              [[JRJanrainCloudsearch janrainCloudsearch] toUpdateDictionary]) /* Use the default constructor to create an empty object */
+                       forKey:@"cloudsearch"];
+    else if ([self.janrainCloudsearch needsUpdate])
+        [dictionary setObject:[self.janrainCloudsearch toUpdateDictionary]
+                       forKey:@"cloudsearch"];
+
+    if ([self.dirtyPropertySet containsObject:@"controlField"])
+        [dictionary setObject:(self.controlField ? self.controlField : [NSNull null]) forKey:@"controlField"];
 
     if ([self.dirtyPropertySet containsObject:@"controlFields"])
         [dictionary setObject:(self.controlFields ?
@@ -296,14 +322,14 @@
         [dictionary setObject:[self.controlFields toUpdateDictionary]
                        forKey:@"controlFields"];
 
-//    if ([self.dirtyPropertySet containsObject:@"properties"])
-//        [dictionary setObject:(self.properties ?
-//                              [self.properties toUpdateDictionary] :
-//                              [[JRProperties properties] toUpdateDictionary]) /* Use the default constructor to create an empty object */
-//                       forKey:@"properties"];
-//    else if ([self.properties needsUpdate])
-//        [dictionary setObject:[self.properties toUpdateDictionary]
-//                       forKey:@"properties"];
+    if ([self.dirtyPropertySet containsObject:@"properties"])
+        [dictionary setObject:(self.properties ?
+                              [self.properties toUpdateDictionary] :
+                              [[JRProperties properties] toUpdateDictionary]) /* Use the default constructor to create an empty object */
+                       forKey:@"properties"];
+    else if ([self.properties needsUpdate])
+        [dictionary setObject:[self.properties toUpdateDictionary]
+                       forKey:@"properties"];
 
     [self.dirtyPropertySet removeAllObjects];
     return [NSDictionary dictionaryWithDictionary:dictionary];
@@ -320,10 +346,11 @@
          [NSMutableDictionary dictionaryWithCapacity:10];
 
 
-    [dictionary setObject:(self.cloudsearch ?
-                          [self.cloudsearch toReplaceDictionary] :
-                          [[JRCloudsearch cloudsearch] toUpdateDictionary]) /* Use the default constructor to create an empty object */
+    [dictionary setObject:(self.janrainCloudsearch ?
+                          [self.janrainCloudsearch toReplaceDictionary] :
+                          [[JRJanrainCloudsearch janrainCloudsearch] toUpdateDictionary]) /* Use the default constructor to create an empty object */
                    forKey:@"cloudsearch"];
+    [dictionary setObject:(self.controlField ? self.controlField : [NSNull null]) forKey:@"controlField"];
 
     [dictionary setObject:(self.controlFields ?
                           [self.controlFields toReplaceDictionary] :
@@ -344,7 +371,7 @@
     if ([self.dirtyPropertySet count])
          return YES;
 
-    if ([self.cloudsearch needsUpdate])
+    if ([self.janrainCloudsearch needsUpdate])
         return YES;
 
     if ([self.controlFields needsUpdate])
@@ -358,10 +385,14 @@
 
 - (BOOL)isEqualToJanrain:(JRJanrain *)otherJanrain
 {
-    if (!self.cloudsearch && !otherJanrain.cloudsearch) /* Keep going... */;
-    else if (!self.cloudsearch && [otherJanrain.cloudsearch isEqualToCloudsearch:[JRCloudsearch cloudsearch]]) /* Keep going... */;
-    else if (!otherJanrain.cloudsearch && [self.cloudsearch isEqualToCloudsearch:[JRCloudsearch cloudsearch]]) /* Keep going... */;
-    else if (![self.cloudsearch isEqualToCloudsearch:otherJanrain.cloudsearch]) return NO;
+    if (!self.janrainCloudsearch && !otherJanrain.janrainCloudsearch) /* Keep going... */;
+    else if (!self.janrainCloudsearch && [otherJanrain.janrainCloudsearch isEqualToJanrainCloudsearch:[JRJanrainCloudsearch janrainCloudsearch]]) /* Keep going... */;
+    else if (!otherJanrain.janrainCloudsearch && [self.janrainCloudsearch isEqualToJanrainCloudsearch:[JRJanrainCloudsearch janrainCloudsearch]]) /* Keep going... */;
+    else if (![self.janrainCloudsearch isEqualToJanrainCloudsearch:otherJanrain.janrainCloudsearch]) return NO;
+
+    if (!self.controlField && !otherJanrain.controlField) /* Keep going... */;
+    else if ((self.controlField == nil) ^ (otherJanrain.controlField == nil)) return NO; // xor
+    else if (![self.controlField isEqualToString:otherJanrain.controlField]) return NO;
 
     if (!self.controlFields && !otherJanrain.controlFields) /* Keep going... */;
     else if (!self.controlFields && [otherJanrain.controlFields isEqualToControlFields:[JRControlFields controlFields]]) /* Keep going... */;
@@ -381,7 +412,8 @@
     NSMutableDictionary *dictionary =
         [NSMutableDictionary dictionaryWithCapacity:10];
 
-    [dictionary setObject:@"JRCloudsearch" forKey:@"cloudsearch"];
+    [dictionary setObject:@"JRJanrainCloudsearch" forKey:@"janrainCloudsearch"];
+    [dictionary setObject:@"NSString" forKey:@"controlField"];
     [dictionary setObject:@"JRControlFields" forKey:@"controlFields"];
     [dictionary setObject:@"JRProperties" forKey:@"properties"];
 

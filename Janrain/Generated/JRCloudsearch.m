@@ -84,7 +84,7 @@
 {
     if ((self = [super init]))
     {
-        self.captureObjectPath = @"/janrain/cloudsearch";
+        self.captureObjectPath = @"/cloudsearch";
         self.canBeUpdatedOnCapture = YES;
 
 

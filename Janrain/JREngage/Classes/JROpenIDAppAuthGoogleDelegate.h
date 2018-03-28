@@ -25,11 +25,7 @@
 
 
 #import <Foundation/Foundation.h>
-#ifdef COCOAPODS
-    #import <AppAuth/AppAuth.h>
-#else
-    #import <AppAuth.h>
-#endif
+#import <AppAuth/AppAuth.h>
 
 @protocol JROpenIDAppAuthGoogleDelegate <NSObject>
 

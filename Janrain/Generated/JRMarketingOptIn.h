@@ -34,33 +34,31 @@
 #import "JRNSDate+ISO8601_CaptureDateTimeString.h"
 
 /**
- * @brief A JRLastUsedDevice object
+ * @brief A JRMarketingOptIn object
  **/
-@interface JRLastUsedDevice : JRCaptureObject
-@property (nonatomic, copy)     NSString *deviceId; /**< The object's \e deviceId property */ 
-@property (nonatomic, copy)     NSString *deviceToken; /**< The object's \e deviceToken property */ 
-@property (nonatomic, copy)     NSString *deviceType; /**< The object's \e deviceType property */ 
-@property (nonatomic, copy)     NSString *tokenType; /**< The object's \e tokenType property */ 
+@interface JRMarketingOptIn : JRCaptureObject
+@property (nonatomic, copy)     NSString *locale; /**< The object's \e locale property */ 
+@property (nonatomic, copy)     JRDateTime *timestamp; /**< The object's \e timestamp property @note A ::JRDateTime property is a property of type \ref typesTable "dateTime" and a typedef of \e NSDate. The accepted format should be an ISO 8601 dateTime string (e.g., <code>yyyy-MM-dd HH:mm:ss.SSSSSS ZZZ</code>) */ 
 
 /**
  * @name Constructors
  **/
 /*@{*/
 /**
- * Default instance constructor. Returns an empty JRLastUsedDevice object
+ * Default instance constructor. Returns an empty JRMarketingOptIn object
  *
  * @return
- *   A JRLastUsedDevice object
+ *   A JRMarketingOptIn object
  **/
 - (id)init;
 
 /**
- * Default class constructor. Returns an empty JRLastUsedDevice object
+ * Default class constructor. Returns an empty JRMarketingOptIn object
  *
  * @return
- *   A JRLastUsedDevice object
+ *   A JRMarketingOptIn object
  **/
-+ (id)lastUsedDevice;
++ (id)marketingOptIn;
 
 /*@}*/
 
