@@ -57,6 +57,7 @@
 @property(nonatomic) BOOL flowUsesTestingCdn;
 @property(nonatomic, readonly) NSArray *linkedProfiles;
 @property(nonatomic, readonly) BOOL socialSignMode;
+@property(nonatomic, readonly) NSString *downloadEnageUrl;
 
 + (void)setAccessToken:(NSString *)token;
 

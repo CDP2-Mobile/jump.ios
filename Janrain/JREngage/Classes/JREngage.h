@@ -82,7 +82,8 @@
 
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
-
+#import "JRNativeProvider.h"
+#import "JROpenIDAppAuthProvider.h"
 @class JRActivityObject;
 
 /**
@@ -326,6 +327,9 @@ FOUNDATION_EXPORT NSString *const JRFailedToUpdateEngageConfigurationNotificatio
  **/
 @interface JREngage : NSObject
 
+@property (nonatomic) JRNativeProvider *nativeProvider;
+@property (nonatomic) JROpenIDAppAuthProvider *openIDAppAuthProvider;
+
 /**
  * @name Get the JREngage Instance
  * Methods that initialize and return the shared JREngage instance
@@ -382,6 +386,29 @@ FOUNDATION_EXPORT NSString *const JRFailedToUpdateEngageConfigurationNotificatio
  *    Your google+ client id. Should be from the same Google+ app that is registered with Engage.
  */
 + (void)setGooglePlusClientId:(NSString *)clientId;
+/**
+ *  Set the Google+ RedirectUri for use with native Google+ SSO
+ *
+ *  @param clientId
+ *    Your google+ RedirectUri. Should be from the same Google+ app that is registered with Engage.
+ */
++ (void)setGooglePlusRedirectUri:(NSString *)redirectUri;
+/**
+ *  Set the WeChat App id for use with native WeChat
+ *
+ *  @param appId
+ *    Your WeChat app id. Should be from the same WeChat app that is registered with Engage.
+ */
++ (void)setWeChatAppId:(NSString *)appID;
+
+/**
+ *  Set the WeChat Secret key. This is required for native WeChat.
+ *  The values must match the values in your Engage Dashboard.
+ *
+ *  @param Secret Key
+ *    Your WeChat secret key
+ */
++ (void)setWeChatAppSecretKey:(NSString *)secretKey;
 
 /**
  * @name Manage the Delegates
@@ -616,6 +643,10 @@ FOUNDATION_EXPORT NSString *const JRFailedToUpdateEngageConfigurationNotificatio
 /**
  * JREngage URL handler
  */
+
++ (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+            options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options;
 
 /**
  * JREngage application did become active handler

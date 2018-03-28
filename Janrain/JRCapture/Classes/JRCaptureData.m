@@ -37,6 +37,8 @@
 #import "JRCaptureFlow.h"
 #import "JRCaptureError.h"
 #import "JRCapture.h"
+#import "DIHTTPUtility.h"
+#import "JRSessionData.h"
 
 #define cJRCaptureKeychainIdentifier @"capture_tokens.janrain"
 #define cJRCaptureKeychainUserName @"capture_user"
@@ -54,13 +56,16 @@
 }
 @end
 
-static NSString*appBundleDisplayNameAndIdentifier()
+static NSString*appBundleIdentifier()
 {
     NSDictionary *infoPlist = [[NSBundle mainBundle] infoDictionary];
-    NSString *name = [infoPlist objectForKey:@"CFBundleDisplayName"];
-    NSString *identifier = [infoPlist objectForKey:@"CFBundleIdentifier"];
-
-    return [NSString stringWithFormat:@"%@.%@", name, identifier];
+    return [infoPlist objectForKey:@"CFBundleIdentifier"];
+}
+//Keeping this method for data migration
+static NSString *appBundleDisplayName()
+{
+    NSDictionary *infoPlist = [[NSBundle mainBundle] infoDictionary];
+    return  [infoPlist objectForKey:@"CFBundleDisplayName"];
 }
 
 typedef enum
@@ -91,12 +96,19 @@ static NSString *const FLOW_KEY = @"JR_capture_flow";
 @property(nonatomic) NSString *captureForgottenPasswordFormName;
 @property(nonatomic) NSString *captureEditProfileFormName;
 @property(nonatomic) NSString *resendEmailVerificationFormName;
+@property(nonatomic) DIHTTPUtility *httpUtility;
 
 //@property(nonatomic) JRTraditionalSignInType captureTradSignInType;
 @property(nonatomic) BOOL captureEnableThinRegistration;
 
 @property(nonatomic) NSString *downloadFlowUrl;
 @property(nonatomic) NSString *engageAppUrl;
+@property(nonatomic) NSString *weChatAppId;
+@property(nonatomic) NSString *weChatAppSecret;
+@property(nonatomic) NSString *googlePlusClientId;
+@property(nonatomic) NSString *googlePlusRedirectUri;
+@property(nonatomic) NSString *downloadEnageUrl;
+
 
 @property(nonatomic) JRCaptureFlow *captureFlow;
 @property(nonatomic) NSArray *linkedProfiles;
@@ -126,6 +138,11 @@ static JRCaptureData *singleton = nil;
 @synthesize captureRedirectUri;
 @synthesize downloadFlowUrl;
 @synthesize engageAppUrl;
+@synthesize weChatAppId;
+@synthesize googlePlusClientId;
+@synthesize googlePlusRedirectUri;
+@synthesize weChatAppSecret;
+@synthesize downloadEnageUrl;
 
 - (JRCaptureData *)init
 {
@@ -140,9 +157,19 @@ static JRCaptureData *singleton = nil;
 
 - (NSString *)readTokenForTokenName:(NSString *)tokenName
 {
-    return [SFHFKeychainUtils getPasswordForUsername:cJRCaptureKeychainUserName
-                                      andServiceName:[JRCaptureData serviceNameForTokenName:tokenName]
-                                               error:nil];
+    NSString *value = [SFHFKeychainUtils getPasswordForUsername:cJRCaptureKeychainUserName andServiceName:[JRCaptureData serviceNameForTokenName:tokenName] error:nil];
+    if (!value) {
+        value = [SFHFKeychainUtils getPasswordForUsername:cJRCaptureKeychainUserName andServiceName:[JRCaptureData oldServiceNameForTokenName:tokenName] error:nil];
+        if (value) {
+            //If key Exists in old scheme, add it to new scheme and remove from old scheme
+            if([SFHFKeychainUtils storeUsername:cJRCaptureKeychainUserName andPassword:value forServiceName:[JRCaptureData serviceNameForTokenName:tokenName] updateExisting:YES error:nil]) {
+                [SFHFKeychainUtils deleteItemForUsername:cJRCaptureKeychainUserName
+                                          andServiceName:[JRCaptureData oldServiceNameForTokenName:tokenName]
+                                                   error:nil];
+            }
+        }
+    }
+    return value;
 }
 
 + (JRCaptureData *)sharedCaptureData
@@ -181,7 +208,6 @@ static JRCaptureData *singleton = nil;
                           forAccountLinking:(BOOL)linkAccount
                                    delegate:(id)delegate {
     JRCaptureData *captureData = [JRCaptureData sharedCaptureData];
-    
     NSString *redirectUri = [singleton redirectUri];
     NSString *thinReg = [JRCaptureData sharedCaptureData].captureEnableThinRegistration ? @"true" : @"false";
     NSMutableDictionary *urlArgs = [NSMutableDictionary dictionaryWithDictionary:
@@ -244,11 +270,13 @@ static JRCaptureData *singleton = nil;
 + (void)setCaptureConfig:(JRCaptureConfig *)config
 {
     JRCaptureData *captureDataInstance = [JRCaptureData sharedCaptureData];
-    if (captureDataInstance.initialized)
-    {
-        [NSException raiseJRDebugException:@"JRCaptureDuplicateInitializationException" format:@"Repeated "
-                "initialization of JRCapture is unsafe"];
-    }
+    //Commented to reintilized JRCaptureData if the flow is not dowloaded
+//    if (captureDataInstance.initialized)
+//    {
+//        [NSException raiseJRDebugException:@"JRCaptureDuplicateInitializationException" format:@"Repeated "
+//                "initialization of JRCapture is unsafe"];
+//    }
+
     captureDataInstance.initialized = YES;
     captureDataInstance.captureBaseUrl = [config.captureDomain urlStringFromBaseDomain];
     captureDataInstance.clientId = config.captureClientId;
@@ -265,7 +293,12 @@ static JRCaptureData *singleton = nil;
     captureDataInstance.resendEmailVerificationFormName = config.resendEmailVerificationFormName;
     captureDataInstance.downloadFlowUrl = config.downloadFlowUrl;
     captureDataInstance.engageAppUrl = config.engageAppUrl;
-
+    captureDataInstance.weChatAppId = config.weChatAppId;
+    captureDataInstance.weChatAppSecret = config.weChatAppSecret;
+    captureDataInstance.googlePlusClientId = config.googlePlusClientId;
+    captureDataInstance.googlePlusRedirectUri = config.googlePlusRedirectUri;
+    captureDataInstance.downloadEnageUrl = config.downloadEnageUrl;
+    
     if ([captureDataInstance.captureLocale length] &&
             [captureDataInstance.captureFlowName length] && [captureDataInstance.captureAppId length])
     {
@@ -297,7 +330,7 @@ static JRCaptureData *singleton = nil;
     NSString *flowUrlString = @"";
     
     if (self.downloadFlowUrl.length > 0){
-        flowUrlString = [NSString stringWithFormat:@"https://%@/widget_data/flows/%@/%@/%@/%@.json",
+        flowUrlString = [NSString stringWithFormat:@"%@/widget_data/flows/%@/%@/%@/%@.json",
                          self.downloadFlowUrl,
                          self.captureAppId, self.captureFlowName,
                          flowVersion, self.captureLocale];
@@ -310,8 +343,8 @@ static JRCaptureData *singleton = nil;
     
     NSMutableURLRequest *downloadRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:flowUrlString]];
     [downloadRequest setValue:@"gzip" forHTTPHeaderField:@"Accept-Encoding"];
-    
-    NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:downloadRequest completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable e) {
+    self.httpUtility = [[DIHTTPUtility alloc] init];
+    [self.httpUtility startURLConnectionWithRequest:downloadRequest completionHandler:^(id response, NSData *data, NSError *error) {
         /*
          * "Notification Centers" @ developer.apple.com
          * A notification center delivers notifications to observers synchronously. In other words,
@@ -319,20 +352,22 @@ static JRCaptureData *singleton = nil;
          * have received and processed the notification. To send notifications asynchronously use
          * a notification queue, which is described in “Notification Queues.”
          */
-        if (e)
+        if (!error)
         {
-            ALog(@"Error downloading flow: %@", e);
-            NSNotification *notification = [NSNotification notificationWithName:JRDownloadFlowResult object:e];
+            DLog(@"Fetched flow URL: %@", flowUrlString);
+            NSError *error = [self processFlow:data response:(NSHTTPURLResponse *) response];
+            NSNotification *notification = [NSNotification notificationWithName:JRDownloadFlowResult object:error];
+            [[NSNotificationQueue defaultQueue] enqueueNotification:notification postingStyle:NSPostWhenIdle];
+        }else if (error && error.code != -999){
+            ALog(@"Error downloading flow: %@", error.description);
+            NSNotification *notification = [NSNotification notificationWithName:JRDownloadFlowResult object:error];
             [[NSNotificationQueue defaultQueue] enqueueNotification:notification postingStyle:NSPostWhenIdle];
             return;
+            
+        }else{
+            ALog(@"Error downloading flow: %@", error.description);
         }
-        DLog(@"Fetched flow URL: %@", flowUrlString);
-        NSError *error = [self processFlow:data response:(NSHTTPURLResponse *) response];
-        NSNotification *notification = [NSNotification notificationWithName:JRDownloadFlowResult object:error];
-        [[NSNotificationQueue defaultQueue] enqueueNotification:notification postingStyle:NSPostWhenIdle];
     }];
-    
-    [task resume];
 }
 
 - (NSError *)processFlow:(NSData *)flowData response:(NSHTTPURLResponse *)response
@@ -378,14 +413,25 @@ static JRCaptureData *singleton = nil;
 + (NSString *)serviceNameForTokenName:(NSString *)tokenName
 {
     return [NSString stringWithFormat:@"%@.%@.%@.", cJRCaptureKeychainIdentifier, tokenName,
-                     appBundleDisplayNameAndIdentifier()];
+                     appBundleIdentifier()];
+}
+
++ (NSString*)oldServiceNameForTokenName:(NSString*)tokenName
+{   //Generate old scheme for keychain for migration
+    return [NSString stringWithFormat:@"%@.%@.%@.%@.", cJRCaptureKeychainIdentifier, tokenName,
+            appBundleDisplayName(),appBundleIdentifier()];
 }
 
 + (void)deleteTokenNameFromKeychain:(NSString *)name
 {
-    [SFHFKeychainUtils deleteItemForUsername:cJRCaptureKeychainUserName
+    if(![SFHFKeychainUtils deleteItemForUsername:cJRCaptureKeychainUserName
                               andServiceName:[JRCaptureData serviceNameForTokenName:name]
-                                       error:nil];
+                                            error:nil]) {
+        //Delete data from old scheme as well.
+        [SFHFKeychainUtils deleteItemForUsername:cJRCaptureKeychainUserName
+                                  andServiceName:[JRCaptureData oldServiceNameForTokenName:name]
+                                           error:nil];
+    }
 }
 
 + (void)storeTokenInKeychain:(NSString *)token name:(NSString *)name

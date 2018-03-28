@@ -123,6 +123,18 @@
  **/
 @property (nonatomic) NSString *downloadFlowUrl;
 
+/**
+ *   WeChat Application Credentials.
+ **/
+@property (nonatomic) NSString *weChatAppId;
+@property (nonatomic) NSString *weChatAppSecret;
+@property (nonatomic) NSString *googlePlusClientId;
+@property (nonatomic) NSString *googlePlusRedirectUri;
+
+/**
+ *   The url of your flowEngage (e.g., \@"https://rpxnow.com")
+ **/
+@property(nonatomic) NSString *downloadEnageUrl;
 
 /**
  *   Get an empty Capture Configuration

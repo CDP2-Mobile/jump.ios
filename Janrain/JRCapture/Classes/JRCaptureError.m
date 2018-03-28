@@ -62,7 +62,7 @@ static NSString *const ENGAGE_TOKEN_KEY = @"merge_token";
 {
     NSString *descFmt = @"Could not create a connection for request %@ for delegate %@ with tag %@";
     NSString *desc = [NSString stringWithFormat:descFmt, request, delegate, tag];
-    ALog("%@", desc);
+    ALog(@"%@", desc);
     NSNumber *code = [NSNumber numberWithInteger:JRCaptureLocalApidErrorUrlConnection];
     NSDictionary *errDict = @{
             @"stat" : @"error",
@@ -189,7 +189,7 @@ static NSString *const ENGAGE_TOKEN_KEY = @"merge_token";
                         engageToken:(NSString *)mergeToken
 {
     NSString *errorDescription = [result objectForKey:@"error_description"];
-    NSString *errorMessage = [result objectForKey:@"message"];
+    NSString *message = [result objectForKey:@"message"];
     NSString *errorString = [result objectForKey:@"error"];
     NSNumber *code = [result objectForKey:@"code"];
     NSString *rawResponse = [result objectForKey:@"raw_response"];
@@ -197,8 +197,10 @@ static NSString *const ENGAGE_TOKEN_KEY = @"merge_token";
     if (onProvider) [extraFields setObject:onProvider forKey:@"provider"];
     if (mergeToken) [extraFields setObject:mergeToken forKey:ENGAGE_TOKEN_KEY];
     if (rawResponse) [extraFields setObject:rawResponse forKey:@"raw_response"];
-    
-    if(errorMessage.length > 0) errorDescription = errorMessage;
+    if (message) [extraFields setObject:message forKey:@"message"];
+    if (errorString) [extraFields setObject:errorString forKey:@"error"];
+    if (code) [extraFields setObject:code forKey:@"code"];
+
 
     if (between([code integerValue], GENERIC_ERROR_RANGE, LOCAL_APID_ERROR_RANGE))
         return [self errorWithErrorString:errorString code:[code integerValue] description:errorDescription

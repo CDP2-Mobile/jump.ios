@@ -38,6 +38,7 @@
 #import "JRUserInterfaceMaestro.h"
 #import "JREngage+CustomInterface.h"
 #import "JRJsonUtils.h"
+#import "JRCaptureData.h"
 
 static NSString *serverUrl = @"https://rpxnow.com";
 
@@ -728,6 +729,8 @@ static JRSessionData *singleton = nil;
     ALog (@"Getting configuration for RP: %@", urlString);
     
     NSMutableURLRequest *configRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+    
+    [JRConnectionManager stopConnectionsForDelegate:self];
     
     if (![JRConnectionManager createConnectionFromRequest:configRequest forDelegate:self returnFullResponse:YES
                                                   withTag:GET_CONFIGURATION_TAG])
@@ -1634,6 +1637,10 @@ static JRSessionData *singleton = nil;
         {
             self.error = [JREngageError errorWithMessage:@"There was a problem communicating with the Janrain server while configuring authentication."
                                                  andCode:JRConfigurationInformationError];
+            [[NSNotificationCenter defaultCenter]
+             postNotificationName:JRFailedToUpdateEngageConfigurationNotification
+             object:self
+             userInfo:@{@"error" : self.error}];
         }
         else if ([(NSString *)tag isEqualToString:@"emailSuccess"])
         {

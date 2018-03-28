@@ -154,7 +154,7 @@
     }
     
     NSString *tokenUrl = ((id)[command.arguments objectAtIndex:1] == [NSNull null]) ? nil : [command.arguments objectAtIndex:1];
-    NSString *path = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/JREngage-Info.plist"];
+    NSString *path = [[[NSBundle bundleForClass:[self class]] resourcePath] stringByAppendingPathComponent:@"/JREngage-Info.plist"];
     NSMutableDictionary *infoPlist =
             [NSMutableDictionary dictionaryWithDictionary:[NSDictionary dictionaryWithContentsOfFile:path]];
 

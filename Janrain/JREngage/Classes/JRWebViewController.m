@@ -214,6 +214,7 @@
 {
     DLog(@"");
     [myWebView stopLoading];
+    [myWebView endEditing:YES];
 
     [JRConnectionManager stopConnectionsForDelegate:self];
     [self stopProgress];
@@ -528,7 +529,6 @@
         [self presentViewController:alertController animated:YES completion:nil];
 
         userHitTheBackButton = NO; /* Because authentication failed for whatever reason. */
-        
         [sessionData triggerAuthenticationDidFailWithError:newError];
     }
 }
@@ -562,6 +562,6 @@
     DLog(@"");
     // Must set delegate to nil to avoid this controller being called after
     // it has been freed by the web view.
-    //myWebView.delegate = nil;
+    myWebView.delegate = nil;
 }
 @end

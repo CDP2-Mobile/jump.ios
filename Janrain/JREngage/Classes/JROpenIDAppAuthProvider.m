@@ -53,7 +53,7 @@
     DLog(@"Starting native %@ authentication.", [self provider]);
 }
 
-- (void)getAuthInfoTokenForAccessToken:(id)token {
+- (void)getAuthInfoTokenForAccessToken:(id)token andAuthInfoDic:(id)authInfoDic {
     if (![token isKindOfClass:[NSString class]])
     {
         id userInfo = @{@"description":@"invalid token", @"token":[NSValue valueWithNonretainedObject:token]};
@@ -64,7 +64,7 @@
         return;
     }
     
-    [self getAuthInfoTokenForAccessToken:(NSString *)token andTokenSecret:nil];
+    [self getAuthInfoTokenForAccessToken:(NSString *)token andTokenSecret:nil andAuthInfoDic:authInfoDic];
 }
 
 - (void)triggerWebViewAuthenticationWithMessage:(NSString *)message {
@@ -72,12 +72,11 @@
     self.completion([JREngageError errorWithMessage:message andCode:JRAuthenticationShouldTryWebViewError]);
 }
 
-- (void)getAuthInfoTokenForAccessToken:(NSString *)token andTokenSecret:(NSString *)tokenSecret {
+- (void)getAuthInfoTokenForAccessToken:(NSString *)token andTokenSecret:(NSString *)tokenSecret andAuthInfoDic:(id)authInfoDic{
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:@{
                                                                                   @"token" : token,
                                                                                   @"provider" : self.provider
                                                                                   }];
-    
     NSString *url = [[JRSessionData jrSessionData].baseUrl stringByAppendingString:@"/signin/oauth_token"];
     
     if(self.provider.length > 0){
@@ -115,7 +114,7 @@
         [sessionData triggerAuthenticationDidCompleteWithPayload:@{
                                                                    @"rpx_result" : @{
                                                                            @"token" : authInfoToken,
-                                                                           @"auth_info" : @{}
+                                                                           @"auth_info" : @{@"profile":authInfoDic}
                                                                            },
                                                                    }];
         
@@ -129,3 +128,4 @@
 }
 
 @end
+

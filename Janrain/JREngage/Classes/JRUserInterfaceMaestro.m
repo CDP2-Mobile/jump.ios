@@ -650,7 +650,7 @@ static JRUserInterfaceMaestro *singleton = nil;
 - (NSDictionary*)loadJanrainInterfaceDefaults
 {
     NSDictionary *infoPlist = [NSDictionary dictionaryWithContentsOfFile:
-                               [[[NSBundle mainBundle] resourcePath]
+                               [[[NSBundle bundleForClass:[self class]] resourcePath]
                                 stringByAppendingPathComponent:@"/JREngage-Info.plist"]];
 
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:
@@ -765,19 +765,19 @@ static JRUserInterfaceMaestro *singleton = nil;
 {
     DLog(@"");
     myProvidersController       = [[JRProvidersController alloc] initWithNibName:@"JRProvidersController"
-                                                                          bundle:[NSBundle mainBundle]
+                                                                          bundle:[NSBundle bundleForClass:[self class]]
                                                               andCustomInterface:customInterface];
 
     myUserLandingController     = [[JRUserLandingController alloc] initWithNibName:@"JRUserLandingController"
-                                                                            bundle:[NSBundle mainBundle]
+                                                                            bundle:[NSBundle bundleForClass:[self class]]
                                                                 andCustomInterface:customInterface];
 
     myWebViewController         = [[JRWebViewController alloc] initWithNibName:@"JRWebViewController"
-                                                                        bundle:[NSBundle mainBundle]
+                                                                        bundle:[NSBundle bundleForClass:[self class]]
                                                             andCustomInterface:customInterface];
 
     myPublishActivityController = [[JRPublishActivityController alloc] initWithNibName:@"JRPublishActivityController"
-                                                                                bundle:[NSBundle mainBundle]
+                                                                                bundle:[NSBundle bundleForClass:[self class]]
                                                                     andCustomInterface:customInterface];
 
     @try

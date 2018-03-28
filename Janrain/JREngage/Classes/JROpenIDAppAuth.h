@@ -24,13 +24,14 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #import <Foundation/Foundation.h>
+#import "JROpenIDAppAuthGoogleDelegate.h"
 
 @class JROpenIDAppAuthProvider;
 
 @interface JROpenIDAppAuth : NSObject
 + (BOOL)canHandleProvider:(NSString *)provider;
 
-+ (JROpenIDAppAuthProvider *)openIDAppAuthProviderNamed:(NSString *)provider;
++ (JROpenIDAppAuthProvider *)openIDAppAuthProviderNamed:(NSString *)provider andDelegate:(id<JROpenIDAppAuthGoogleDelegate>)delegate;
 
 + (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication
          annotation:(id)annotation;

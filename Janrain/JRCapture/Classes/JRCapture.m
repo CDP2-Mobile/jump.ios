@@ -41,6 +41,7 @@
 #import "JREngageWrapper.h"
 #import "JRCaptureData.h"
 #import "debug_log.h"
+#import "URSettingsWrapper.h"
 #import "JRBase64.h"
 #import "JRCaptureError.h"
 #import "JRCaptureUser+Extras.h"
@@ -72,6 +73,11 @@ static id ObjectOrNull(id object)
 + (void)setCaptureConfig:(JRCaptureConfig *)config
 {
     [JRCaptureData setCaptureConfig:config];
+    [JREngage setWeChatAppId:config.weChatAppId];
+    [JREngage setWeChatAppSecretKey:config.weChatAppSecret];
+    [JREngage setGooglePlusClientId:config.googlePlusClientId];
+    [JREngage setGooglePlusRedirectUri:config.googlePlusRedirectUri];
+    
     if (config.engageAppId.length > 0){
         [JREngageWrapper configureEngageWithAppId:config.engageAppId engageAppUrl:config.engageAppUrl customIdentityProviders:config.customProviders];
     }else{
@@ -728,9 +734,10 @@ captureRegistrationFormName:(NSString *)captureRegistrationFormName
 + (NSString *)utcTimeString
 {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"]];
     [dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"UTC"]];
     [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-    NSString *dateString = [dateFormatter stringFromDate:[NSDate date]];
+    NSString *dateString = [dateFormatter stringFromDate:[DIRegistrationAppTime getUTCTime]];
     return dateString;
 }
 
@@ -739,10 +746,10 @@ captureRegistrationFormName:(NSString *)captureRegistrationFormName
 {
     if (!refreshSecret) return nil;
     NSString *stringToSign = [NSString stringWithFormat:@"refresh_access_token\n%@\n%@\n", dateString, accessToken];
-    
+
     const char *cKey  = [refreshSecret cStringUsingEncoding:NSUTF8StringEncoding];
     const char *cData = [stringToSign cStringUsingEncoding:NSUTF8StringEncoding];
-    
+
     unsigned char cHMAC[CC_SHA1_DIGEST_LENGTH];
 
     CCHmac(kCCHmacAlgSHA1, cKey, strlen(cKey), cData, strlen(cData), cHMAC);
@@ -886,7 +893,6 @@ captureRegistrationFormName:(NSString *)captureRegistrationFormName
         @"form" : ObjectOrNull(editProfileForm),
         @"flow" : ObjectOrNull(data.captureFlowName),
     }];
-   
 
     if ([data downloadedFlowVersion]) {
         [params setObject:[data downloadedFlowVersion] forKey:@"flow_version"];
@@ -925,6 +931,7 @@ captureRegistrationFormName:(NSString *)captureRegistrationFormName
                                        @"locale" : ObjectOrNull(data.captureLocale),
                                        @"form" : ObjectOrNull(formName),
                                        @"flow" : ObjectOrNull(data.captureFlowName),
+                                       @"redirect_uri": ObjectOrNull(data.captureRedirectUri)
                                        }];
     
     if ([data downloadedFlowVersion]) {

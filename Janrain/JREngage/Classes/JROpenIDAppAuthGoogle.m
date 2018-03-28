@@ -63,7 +63,8 @@ static NSString *const kAppAuthExampleAuthStateKey = @"authState";
     NSURL *redirectURI = [NSURL URLWithString:jrOpenIDAppAuthGoogleDelegate.googlePlusRedirectUri];
     
     DLog(@"Fetching configuration for issuer: %@", issuer);
-    
+    self.inProgress = YES;
+
     // discovers endpoints
     [OIDAuthorizationService discoverServiceConfigurationForIssuer:issuer
         completion:^(OIDServiceConfiguration *_Nullable configuration, NSError *_Nullable error) {
@@ -121,12 +122,12 @@ static NSString *const kAppAuthExampleAuthStateKey = @"authState";
                                            presentingViewController:current
                                                            callback:^(OIDAuthState *_Nullable authState,
                                                                       NSError *_Nullable error) {
+                                                               self.inProgress  = NO;
                                                                if (authState) {
                                                                    [self setAuthState:authState];
                                                                    DLog(@"Got authorization tokens. Access token: %@",
                                                                         authState.lastTokenResponse.accessToken);
-                                                                   [self getAuthInfoTokenForAccessToken:(NSString *)authState.lastTokenResponse.accessToken];
-                                                                   
+                                                                   [self getUserAuthInfo];
                                                                } else {
                                                                    DLog(@"Google+ Authorization error: %@", [error localizedDescription]);
                                                                    [self setAuthState:nil];
@@ -136,6 +137,103 @@ static NSString *const kAppAuthExampleAuthStateKey = @"authState";
         }];
 }
 
+-(void)getUserAuthInfo {
+    
+    NSURL *userinfoEndpoint =
+    _authState.lastAuthorizationResponse.request.configuration.discoveryDocument.userinfoEndpoint;
+    if (!userinfoEndpoint) {
+        DLog(@"Userinfo endpoint not declared in discovery document");
+        return;
+    }
+    NSString *currentAccessToken = _authState.lastTokenResponse.accessToken;
+    
+    DLog(@"Performing userinfo request");
+    
+    [_authState performActionWithFreshTokens:^(NSString *_Nonnull accessToken,
+                                               NSString *_Nonnull idToken,
+                                               NSError *_Nullable error) {
+        if (error) {
+            DLog(@"Error fetching fresh tokens: %@",[error localizedDescription]);
+            [self setAuthState:nil];
+            self.completion(error);
+            return;
+        }
+        
+        
+        // log whether a token refresh occurred
+        if (![currentAccessToken isEqual:accessToken]) {
+            DLog(@"Access token was refreshed automatically (%@ to %@)",currentAccessToken,accessToken);
+        } else {
+            DLog(@"Access token was fresh and not updated [%@]",accessToken);
+        }
+        
+        // creates request to the userinfo endpoint, with access token in the Authorization header
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:userinfoEndpoint];
+        NSString *authorizationHeaderValue = [NSString stringWithFormat:@"Bearer %@", accessToken];
+        [request addValue:authorizationHeaderValue forHTTPHeaderField:@"Authorization"];
+        
+        NSURLSessionConfiguration *configuration =
+        [NSURLSessionConfiguration defaultSessionConfiguration];
+        NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                              delegate:nil
+                                                         delegateQueue:nil];
+        
+        // performs HTTP request
+        NSURLSessionDataTask *postDataTask =
+        [session dataTaskWithRequest:request
+                   completionHandler:^(NSData *_Nullable data,
+                                       NSURLResponse *_Nullable response,
+                                       NSError *_Nullable error) {
+                       dispatch_async(dispatch_get_main_queue(), ^() {
+                           if (error) {
+                               DLog(@"HTTP request failed %@", error);
+                               [self setAuthState:nil];
+                               self.completion(error);
+                               return;
+                           }
+                           if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
+                               DLog(@"Non-HTTP response");
+                               [self setAuthState:nil];
+                               self.completion(error);
+                               return;
+                           }
+                           
+                           NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+                           id jsonDictionaryOrArray =
+                           [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
+                           
+                           if (httpResponse.statusCode != 200) {
+                               // server replied with an error
+                               NSString *responseText = [[NSString alloc] initWithData:data
+                                                                              encoding:NSUTF8StringEncoding];
+                               if (httpResponse.statusCode == 401) {
+                                   // "401 Unauthorized" generally indicates there is an issue with the authorization
+                                   // grant. Puts OIDAuthState into an error state.
+                                   NSError *oauthError =
+                                   [OIDErrorUtilities resourceServerAuthorizationErrorWithCode:0
+                                                                                 errorResponse:jsonDictionaryOrArray
+                                                                               underlyingError:error];
+                                   [_authState updateWithAuthorizationError:oauthError];
+                                   // log error
+                                   DLog(@"Authorization Error (%@). Response: %@", oauthError, responseText);
+                                   
+                               } else {
+                                   DLog(@"HTTP: %d. Response: %@",(int)httpResponse.statusCode,responseText);
+                               }
+                               [self setAuthState:nil];
+                               self.completion(error);
+                               return;
+                           }
+                           [self getAuthInfoTokenForAccessToken:(NSString *)_authState.lastTokenResponse.accessToken andAuthInfoDic:jsonDictionaryOrArray];
+                           // success response
+                           DLog(@"Success: %@", jsonDictionaryOrArray);
+                       });
+                   }];
+        
+        [postDataTask resume];
+    }];
+    
+}
 
 
 

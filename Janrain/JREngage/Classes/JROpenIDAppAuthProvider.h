@@ -31,14 +31,15 @@ typedef void (^OpenIDAppAuthCompletionBlock)(NSError *);
 
 
 @interface JROpenIDAppAuthProvider : NSObject
+@property (nonatomic, assign) BOOL inProgress;
 @property (nonatomic, copy) OpenIDAppAuthCompletionBlock completion;
 
 + (BOOL)canHandleAuthentication;
 
 - (NSString *)provider;
 - (void)startAuthenticationWithCompletion:(OpenIDAppAuthCompletionBlock)completion;
-- (void)getAuthInfoTokenForAccessToken:(id)token;
-- (void)getAuthInfoTokenForAccessToken:(NSString *)token andTokenSecret:(NSString *)tokenSecret;
+- (void)getAuthInfoTokenForAccessToken:(id)token andAuthInfoDic:(id)authInfoDic;
+//- (void)getAuthInfoTokenForAccessToken:(NSString *)token andTokenSecret:(NSString *)tokenSecret;
 - (void)triggerWebViewAuthenticationWithMessage:(NSString *)message;
 @end
 
