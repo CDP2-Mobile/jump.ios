@@ -75,8 +75,6 @@ static id ObjectOrNull(id object)
     [JRCaptureData setCaptureConfig:config];
     [JREngage setWeChatAppId:config.weChatAppId];
     [JREngage setWeChatAppSecretKey:config.weChatAppSecret];
-    [JREngage setGooglePlusClientId:config.googlePlusClientId];
-    [JREngage setGooglePlusRedirectUri:config.googlePlusRedirectUri];
     
     if (config.engageAppId.length > 0){
         [JREngageWrapper configureEngageWithAppId:config.engageAppId engageAppUrl:config.engageAppUrl customIdentityProviders:config.customProviders];

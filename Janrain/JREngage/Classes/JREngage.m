@@ -36,13 +36,11 @@
 #import "JRSessionData.h"
 #import "JRUserInterfaceMaestro.h"
 #import "JREngageError.h"
-#import "JROpenIDAppAuth.h"
 #import "JRNativeAuth.h"
 #import "JRNativeAuthConfig.h"
-#import "AppAuth.h"
 
 
-@interface JREngage () <JRSessionDelegate, JRNativeAuthConfig, JROpenIDAppAuthGoogleDelegate>
+@interface JREngage () <JRSessionDelegate, JRNativeAuthConfig>
 
 /** \internal Class that handles customizations to the library's UI */
 @property (nonatomic) JRUserInterfaceMaestro *interfaceMaestro;
@@ -63,9 +61,6 @@ NSString *const JRFailedToUpdateEngageConfigurationNotification = @"JRFailedToUp
 
 @implementation JREngage
 
-@synthesize googlePlusClientId;
-@synthesize googlePlusRedirectUri;
-@synthesize openIDAppAuthAuthorizationFlow;
 @synthesize interfaceMaestro;
 @synthesize sessionData;
 @synthesize delegates;
@@ -151,14 +146,6 @@ static JREngage* singleton = nil;
     [JREngage setEngageAppId:appId appUrl:nil tokenUrl:tokenUrl andDelegate:delegate];
 
     return [JREngage singletonInstance];
-}
-
-+ (void)setGooglePlusClientId:(NSString *)clientId {
-    [[JREngage singletonInstance] setGooglePlusClientId:clientId];
-}
-
-+ (void)setGooglePlusRedirectUri:(NSString *)redirectUri {
-    [[JREngage singletonInstance] setGooglePlusRedirectUri:redirectUri];
 }
 
 + (void)setWeChatAppId:(NSString *)appID {
@@ -263,30 +250,11 @@ static JREngage* singleton = nil;
         return;
     }
 
-    if ([JROpenIDAppAuth canHandleProvider:provider]) {
-        [self startOpenIDAppAuthOnProvider:provider customInterface:customInterfaceOverrides];
-    } else if ([JRNativeAuth canHandleProvider:provider]) {
+    if ([JRNativeAuth canHandleProvider:provider]) {
         [self startNativeAuthOnProvider:provider customInterface:customInterfaceOverrides];
     } else {
         [interfaceMaestro startWebAuthWithCustomInterface:customInterfaceOverrides provider:provider];
     }
-}
-
-- (void)startOpenIDAppAuthOnProvider:(NSString *)provider customInterface:(NSDictionary *)customInterfaceOverrides {
-    self.openIDAppAuthProvider = [JROpenIDAppAuth openIDAppAuthProviderNamed:provider andDelegate:self];
-    [self.openIDAppAuthProvider startAuthenticationWithCompletion:^(NSError *error) {
-        
-        if (!error) return;
-        
-        if ([error.domain isEqualToString:JREngageErrorDomain] && error.code == JRAuthenticationCanceledError) {
-            [self authenticationDidCancel];
-        } else if ([error.domain isEqualToString:JREngageErrorDomain]
-                   && error.code == JRAuthenticationShouldTryWebViewError) {
-            [interfaceMaestro startWebAuthWithCustomInterface:customInterfaceOverrides provider:provider];
-        } else {
-            [self authenticationDidFailWithError:error forProvider:provider];
-        }
-    }];
 }
 
 - (void)startNativeAuthOnProvider:(NSString *)provider customInterface:(NSDictionary *)customInterfaceOverrides {
@@ -746,12 +714,6 @@ static JREngage* singleton = nil;
 + (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)url
             options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options{
-    
-    JROpenIDAppAuthProvider *openIDAppAuthGoogle = [(JREngage *)[JREngage singletonInstance] openIDAppAuthProvider];
-    if (openIDAppAuthGoogle.inProgress && [ [JREngage singletonInstance].openIDAppAuthAuthorizationFlow resumeAuthorizationFlowWithURL:url ]) {
-        [JREngage singletonInstance].openIDAppAuthAuthorizationFlow = nil;
-        return YES;
-    }
     return [JRNativeAuth application:application openURL:url options:options provider:[JREngage singletonInstance].nativeProvider];
 }
 
@@ -766,12 +728,7 @@ static JREngage* singleton = nil;
 }
 
 #pragma mark - JROpenIDAppAuthGoogleDelegate Delegate -
-
-- (NSString *)googlePlusClientId {
-    return googlePlusClientId;
-}
-
-- (NSString *)googlePlusRedirectUri {
-    return googlePlusRedirectUri;
+- (NSArray *)googlePlusOpenIDScopes {
+    return @[@"OIDScopeOpenID", @"OIDScopeProfile", @"OIDScopeEmail", @"OIDScopeAddress", @"OIDScopePhone"];
 }
 @end

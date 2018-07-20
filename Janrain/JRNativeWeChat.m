@@ -152,7 +152,7 @@
 -(void)startNativeWeChat:(NSDictionary *)weChatData{
     
     if([weChatData count] > 0){
-        DIRLog(@"WeChat Token Result: %@" , weChatData);
+        DIRDebugLog(@"WeChat Token Result: %@" , weChatData);
         if(![[weChatData objectForKey:@"access_token"] isEqual:@""]){
             NSString* weChatToken = [weChatData objectForKey:@"access_token"];
             NSString* weChatOpenId = @"WeChat_OpenId_Not_Found";
@@ -165,12 +165,10 @@
             
         }
     }else{
-        DIRLog(@"WeChat Token Failed: %@" , weChatData);
-        UIAlertView *alertView;
-        alertView = [[UIAlertView alloc] initWithTitle:@"Error" message:@"WeChat Authentication Failed"
-                                              delegate:nil cancelButtonTitle:@"Dismiss"
-                                     otherButtonTitles:nil];
-        
+        DIRDebugLog(@"WeChat Token Failed: %@" , weChatData);
+        if (self.completion) {
+            self.completion([URJanrainErrorParser mappedErrorForJanrainError:[NSError errorWithDomain:@"WeChat Error" code:JRCaptureLocalApidErrorInvalidResultStat userInfo:weChatData]]);
+        }
     }
 }
 -(NSString*)getState {

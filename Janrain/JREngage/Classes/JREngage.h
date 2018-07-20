@@ -83,7 +83,6 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 #import "JRNativeProvider.h"
-#import "JROpenIDAppAuthProvider.h"
 @class JRActivityObject;
 
 /**
@@ -328,7 +327,6 @@ FOUNDATION_EXPORT NSString *const JRFailedToUpdateEngageConfigurationNotificatio
 @interface JREngage : NSObject
 
 @property (nonatomic) JRNativeProvider *nativeProvider;
-@property (nonatomic) JROpenIDAppAuthProvider *openIDAppAuthProvider;
 
 /**
  * @name Get the JREngage Instance
@@ -379,20 +377,6 @@ FOUNDATION_EXPORT NSString *const JRFailedToUpdateEngageConfigurationNotificatio
                        delegate:(id <JREngageSigninDelegate>)delegate __attribute__((deprecated));
 /*@}*/
 
-/**
- *  Set the Google+ client id for use with native Google+ SSO
- *
- *  @param clientId
- *    Your google+ client id. Should be from the same Google+ app that is registered with Engage.
- */
-+ (void)setGooglePlusClientId:(NSString *)clientId;
-/**
- *  Set the Google+ RedirectUri for use with native Google+ SSO
- *
- *  @param clientId
- *    Your google+ RedirectUri. Should be from the same Google+ app that is registered with Engage.
- */
-+ (void)setGooglePlusRedirectUri:(NSString *)redirectUri;
 /**
  *  Set the WeChat App id for use with native WeChat
  *
